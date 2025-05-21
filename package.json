@@ -1,0 +1,31 @@
+{
+  "name": "selfcast-onboard",
+  "version": "1.0.0",
+  "description": "Client onboarding system for Self Cast Studios",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "mongodb": "^5.0.0",
+    "next": "^13.2.4",
+    "nodemailer": "^6.9.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "dotenv": "^16.0.3",
+    "bcryptjs": "^2.4.3"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.36.0",
+    "eslint-config-next": "^13.2.4"
+  },
+  "author": "Self Cast Studios",
+  "license": "UNLICENSED",
+  "private": true
+}

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SelfCast Studios - Onboarding Form</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','https://connect.facebook.net/en_US/fbevents.js');
+
+// Get URL parameters
+const urlParams = new URLSearchParams(window.location.search);
+const externalId = urlParams.get('external_id');
+
+// Initialize with external ID if available
+if (externalId) {
+fbq('init', '704243318632362', {external_id: externalId});
+} else {
+fbq('init', '704243318632362');
+}
+
+fbq('track', 'PageView');
+</script>
+<noscript>
+<img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=704243318632362&ev=PageView&noscript=1"/>
+</noscript>
+<!-- End Meta Pixel Code -->
+
+<style>
+:root {
+--primary-color: #4a6fa5;
+--secondary-color: #1e293b;
+--accent-color: #c8a456;
+--text-color: #333;
+--bg-color: #f5f5f5;
+--card-bg: #fff;
+}
+
+body {
+font-family: 'Raleway', sans-serif;
+background-color: var(--bg-color);
+color: var(--text-color);
+margin: 0;
+padding: 0;
+}
+
+.container {
+max-width: 800px;
+margin: 0 auto;
+padding: 2rem 1rem;
+}
+
+.card {
+background-color: var(--card-bg);
+border-radius: 8px;
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+padding: 2rem;
+margin-bottom: 2rem;
+}
+
+h1, h2 {
+font-family: 'Playfair Display', serif;
+color: var(--secondary-color);
+}
+
+h1 {
+text-align: center;
+font-size: 2.5rem;
+}
+
+h2 {
+font-size: 1.8rem;
+border-bottom: 2px solid var(--primary-color);
+padding-bottom: 0.5rem;
+margin-bottom: 1.5rem;
+}
+
+label {
+font-weight: 600;
+margin-bottom: 0.5rem;
+display: block;
+}
+
+input, select, textarea {
+width: 100%;
+padding: 0.75rem;
+font-family: inherit;
+font-size: 1rem;
+border: 1px solid #ddd;
+border-radius: 4px;
+margin-bottom: 1.5rem;
+}
+
+textarea {
+min-height: 100px;
+}
+
+button {
+background-color: #ff8c00;
+color: #fff;
+border: none;
+padding: 0.75rem 1.5rem;
+font-size: 1rem;
+font-weight: 600;
+border-radius: 4px;
+cursor: pointer;
+}
+
+button:hover {
+background-color: #e07800;
+}
+
+.color-options {
+display: flex;
+gap: 1rem;
+}
+
+.color-option {
+width: 40px;
+height: 40px;
+border-radius: 50%;
+cursor: pointer;
+border: 3px solid transparent;
+transition: transform 0.2s ease, box-shadow 0.2s ease;
+position: relative;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.color-option.selected {
+border-color: #111;
+transform: scale(1.2);
+box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.15);
+}
+
+.color-option .checkmark {
+display: none;
+position: absolute;
+font-size: 18px;
+font-weight: bold;
+color: #fff;
+}
+
+.color-option.selected .checkmark {
+display: block;
+}
+
+.color-option:hover,
+.color-option.selected {
+transform: scale(1.1);
+border-color: #333;
+}
+
+.blue { background-color: #4a6fa5; }
+.navy { background-color: #1e293b; }
+.gold { background-color: #c8a456; }
+.green { background-color: #34d399; }
+.red { background-color: #ef4444; }
+
+.overlay {
+position: fixed;
+top: 0; left: 0; right: 0; bottom: 0;
+background: rgba(0, 0, 0, 0.5);
+display: flex;
+justify-content: center;
+align-items: center;
+opacity: 0;
+visibility: hidden;
+z-index: 1000;
+transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.overlay.active {
+opacity: 1;
+visibility: visible;
+}
+
+.thank-you-popup {
+background: #fff;
+padding: 2rem;
+border-radius: 8px;
+max-width: 500px;
+width: 90%;
+text-align: center;
+box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.thank-you-popup h2 {
+margin-top: 0;
+color: var(--primary-color);
+}
+
+.calendly-inline-widget {
+min-width: 320px;
+height: 700px;
+}
+
+@media (max-width: 768px) {
+.container {
+padding: 1rem;
+}
+.card {
+padding: 1.5rem;
+}
+h1 {
+font-size: 2rem;
+}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="card">
+<h1>Welcome to Self Cast Studios!</h1>
+<p>Thank you for subscribing to our Core Visibility Package. You're in the right place to transform your personal brand with authentic storytelling.</p>
+</div>
+
+<form id="onboarding-form">
+<div class="card">
+<h2>Schedule Your Storytelling Workshop</h2>
+<!-- Calendly inline widget begin -->
+<div class="calendly-inline-widget" data-url="https://calendly.com/vicsicard/30min" style="min-width:320px;height:700px;"></div>
+<script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+<!-- Calendly inline widget end -->
+</div>
+
+<div class="card">
+<h2>Personal Information</h2>
+<label for="fullName">Full Name</label>
+<input type="text" id="fullName" name="fullName" required />
+
+<label for="email">Email Address</label>
+<input type="email" id="email" name="email" required />
+
+<label for="phone">Phone Number</label>
+<input type="tel" id="phone" name="phone" required />
+
+<label for="title">Professional Title</label>
+<input type="text" id="title" name="title" placeholder="e.g., Executive Coach, Marketing Consultant" />
+</div>
+
+<div class="card">
+<h2>Social Media Profiles</h2>
+<label for="linkedin">LinkedIn Profile</label>
+<input type="url" id="linkedin" name="linkedin" />
+
+<label for="instagram">Instagram Profile</label>
+<input type="url" id="instagram" name="instagram" />
+
+<label for="facebook">Facebook Profile</label>
+<input type="url" id="facebook" name="facebook" />
+
+<label for="twitter">Twitter/X Profile</label>
+<input type="url" id="twitter" name="twitter" />
+</div>
+
+<div class="card">
+<h2>Brand Colors</h2>
+<p>Select a primary color for your personal brand:</p>
+<div class="color-options">
+<div class="color-option blue selected" data-color="#4a6fa5" data-style="standard-professional"><span class="checkmark">✓</span></div>
+<div class="color-option navy" data-color="#1E293B" data-style="dark-professional"><span class="checkmark">✓</span></div>
+<div class="color-option gold" data-color="#C8A456" data-style="light-professional"><span class="checkmark">✓</span></div>
+<div class="color-option green" data-color="#34D399" data-style="green-professional"><span class="checkmark">✓</span></div>
+<div class="color-option red" data-color="#EF4444" data-style="red-professional"><span class="checkmark">✓</span></div>
+</div>
+<input type="hidden" id="colorPreference" name="colorPreference" value="#4a6fa5" />
+<input type="hidden" id="stylePackage" name="stylePackage" value="standard-professional" />
+</div>
+
+<div class="card">
+<h2>Workshop Questions</h2>
+<label for="successDefinition">How do you define success in your work?</label>
+<textarea id="successDefinition" name="successDefinition"></textarea>
+
+<label for="contentGoals">What are your goals for your content and personal brand?</label>
+<textarea id="contentGoals" name="contentGoals"></textarea>
+
+<label for="challenges">Are there any themes, ideas, or stories you'd love to explore in the workshop and reflect in your content?</label>
+<textarea id="challenges" name="challenges"></textarea>
+</div>
+
+<div class="card" style="text-align: center;">
+<button type="submit" id="submit-button">Submit & Confirm Workshop</button>
+</div>
+</form>
+</div>
+
+<!-- Thank You Popup -->
+<div id="thank-you-overlay" class="overlay">
+<div class="thank-you-popup">
+<h2>Thank You!</h2>
+<p>Your information has been submitted successfully. We're excited to start working on your personal brand!</p>
+<p>You should receive a confirmation email shortly with details about your scheduled workshop and next steps.</p>
+<p>If you have any questions in the meantime, please contact us at <a href="mailto:info@selfcaststudios.com">info@selfcaststudios.com</a>.</p>
+</div>
+</div>
+
+<!-- Form Submission Script (Updated to use our new API endpoint) -->
+<script>
+const form = document.getElementById('onboarding-form');
+const submitButton = document.getElementById('submit-button');
+const thankYouOverlay = document.getElementById('thank-you-overlay');
+const colorOptions = document.querySelectorAll('.color-option');
+const colorPreferenceInput = document.getElementById('colorPreference');
+const stylePackageInput = document.getElementById('stylePackage');
+
+// Track when Calendly events are booked
+window.addEventListener('message', function(e) {
+  if (e.data.event && e.data.event.indexOf('calendly') === 0) {
+    // Calendly event detected
+    if (e.data.event === 'calendly.event_scheduled') {
+      // Track workshop scheduling with Meta Pixel
+      if (typeof fbq !== 'undefined') {
+        fbq('track', 'Schedule', {
+          content_name: 'workshop_scheduled',
+          external_id: externalId
+        });
+      }
+    }
+  }
+});
+
+colorOptions.forEach(option => {
+  option.addEventListener('click', () => {
+    colorOptions.forEach(opt => opt.classList.remove('selected'));
+    option.classList.add('selected');
+    colorPreferenceInput.value = option.dataset.color;
+    stylePackageInput.value = option.dataset.style;
+  });
+});
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  submitButton.disabled = true;
+  submitButton.textContent = 'Submitting...';
+
+  const formData = new FormData(form);
+  const data = Object.fromEntries(formData.entries());
+  
+  // Map form field names to our API expected format
+  const apiData = {
+    clientName: data.fullName,
+    clientEmail: data.email,
+    projectName: data.title || `${data.fullName}'s Brand Site`,
+    phoneNumber: data.phone,
+    colorPreference: data.colorPreference,
+    stylePackage: data.stylePackage,
+    socialMedia: {
+      linkedin: data.linkedin || '',
+      instagram: data.instagram || '',
+      facebook: data.facebook || '',
+      twitter: data.twitter || ''
+    },
+    workshopResponses: {
+      successDefinition: data.successDefinition || '',
+      contentGoals: data.contentGoals || '',
+      challenges: data.challenges || ''
+    }
+  };
+
+  try {
+    // Send to our new API endpoint instead of Make.com
+    const response = await fetch('/api/submit-onboarding', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(apiData)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Submission failed.');
+    }
+
+    // Track onboarding form submission with Meta Pixel
+    if (typeof fbq !== 'undefined') {
+      fbq('track', 'Lead', {
+        content_name: 'onboarding_complete',
+        external_id: externalId
+      });
+    }
+
+    form.reset();
+    thankYouOverlay.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  } catch (error) {
+    alert('Something went wrong. Please try again.');
+    console.error(error);
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = 'Submit & Confirm Workshop';
+  }
+});
+
+// Optional: close popup on outside click
+thankYouOverlay?.addEventListener('click', (e) => {
+  if (e.target === thankYouOverlay) {
+    thankYouOverlay.classList.remove('active');
+  }
+});
+</script>
+</body>
+</html>
