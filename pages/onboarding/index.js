@@ -245,6 +245,17 @@ export default function OnboardingPage() {
         id="calendly-widget"
         src="https://assets.calendly.com/assets/external/widget.js"
         strategy="afterInteractive"
+        onLoad={() => {
+          // Initialize Calendly after script loads
+          if (typeof window !== 'undefined' && window.Calendly) {
+            window.Calendly.initInlineWidget({
+              url: 'https://calendly.com/selfcaststudios/workshop-interview?hide_gdpr_banner=1',
+              parentElement: document.querySelector('.calendly-inline-widget'),
+              prefill: {},
+              utm: {}
+            });
+          }
+        }}
       />
       
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
@@ -599,7 +610,7 @@ export default function OnboardingPage() {
                   <div className="mt-6">
                     <div 
                       className="calendly-inline-widget" 
-                      data-url="https://calendly.com/selfcaststudios/workshop-interview"
+                      data-url="https://calendly.com/selfcaststudios/workshop-interview?hide_gdpr_banner=1"
                       style={{ minWidth: '320px', height: '630px' }}
                     ></div>
                   </div>
