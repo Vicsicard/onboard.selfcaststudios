@@ -12,7 +12,7 @@ export default function OnboardingPage() {
     instagram: '',
     facebook: '',
     twitter: '',
-    colorPreference: '#4a6fa5',
+    colorPreference: '#007AFF',
     stylePackage: 'standard-professional',
     successDefinition: '',
     contentGoals: '',
@@ -23,6 +23,7 @@ export default function OnboardingPage() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [externalId, setExternalId] = useState('');
+  const [calendlyLoaded, setCalendlyLoaded] = useState(false);
 
   // Get URL parameters on client side only
   useEffect(() => {
@@ -31,6 +32,67 @@ export default function OnboardingPage() {
     if (extId) {
       setExternalId(extId);
     }
+  }, []);
+  
+  // Handle Calendly initialization - separate effect to avoid re-initialization
+  useEffect(() => {
+    // Only run once when component mounts
+    if (calendlyLoaded) return;
+    
+    const initCalendly = () => {
+      if (typeof window !== 'undefined' && window.Calendly) {
+        console.log('Initializing Calendly widget...');
+        const calendlyContainer = document.querySelector('.calendly-container');
+        
+        // Check if Calendly is already initialized in this container
+        if (calendlyContainer && !calendlyContainer.querySelector('iframe')) {
+          window.Calendly.initInlineWidget({
+            url: 'https://calendly.com/vicsicard/30min?hide_gdpr_banner=1',
+            parentElement: calendlyContainer,
+            prefill: {
+              name: formData.fullName,
+              email: formData.email,
+              customAnswers: {
+                a1: formData.phone
+              }
+            },
+            styles: {
+              height: '750px'
+            }
+          });
+          
+          // Add loaded class to hide the loading message
+          setTimeout(() => {
+            if (calendlyContainer) {
+              calendlyContainer.classList.add('loaded');
+              setCalendlyLoaded(true);
+            }
+          }, 1500); // Short delay to ensure widget is fully loaded
+        }
+      } else {
+        console.log('Calendly not loaded yet, retrying in 1 second...');
+        setTimeout(initCalendly, 1000);
+      }
+    };
+    
+    // Clean up any existing Calendly scripts to avoid duplicates
+    const existingScript = document.getElementById('calendly-script');
+    if (existingScript) {
+      existingScript.remove();
+    }
+    
+    // Load Calendly script
+    const script = document.createElement('script');
+    script.id = 'calendly-script';
+    script.src = 'https://assets.calendly.com/assets/external/widget.js';
+    script.async = true;
+    script.onload = initCalendly;
+    document.body.appendChild(script);
+    
+    // Cleanup function
+    return () => {
+      // We don't remove the script on cleanup as it might be needed by other components
+    };
   }, []);
 
   // Handle input changes
@@ -55,7 +117,7 @@ export default function OnboardingPage() {
     setFormData(prev => ({
       ...prev,
       colorPreference: color,
-      stylePackage: style
+      stylePackage: style || prev.stylePackage
     }));
   };
 
@@ -150,7 +212,7 @@ export default function OnboardingPage() {
         instagram: '',
         facebook: '',
         twitter: '',
-        colorPreference: '#4a6fa5',
+        colorPreference: '#007AFF',
         stylePackage: 'standard-professional',
         successDefinition: '',
         contentGoals: '',
@@ -168,42 +230,35 @@ export default function OnboardingPage() {
   // If form was successfully submitted, show success page
   if (submitSuccess) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gradient-surface">
         <Head>
           <title>Onboarding Complete | Self Cast Studios</title>
           <meta name="description" content="Self Cast Studios onboarding process" />
         </Head>
         
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Onboarding Complete!
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Thank you for completing the onboarding process.
-          </p>
-        </div>
+        <div className="onboarding-container">
+          <div className="onboarding-header">
+            <h2>Onboarding Complete!</h2>
+            <p>Thank you for completing the onboarding process.</p>
+          </div>
 
-        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-            <div className="text-center">
+          <div className="onboarding-form">
+            <div className="success-container">
               <svg
-                className="mx-auto h-12 w-12 text-green-500"
-                fill="none"
+                className="success-icon"
+                xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
+                fill="none"
                 stroke="currentColor"
-                aria-hidden="true"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
               </svg>
-              <h3 className="mt-2 text-lg font-medium text-gray-900">
-                We've received your information
-              </h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <h3 className="success-title">We've received your information</h3>
+              <p className="success-message">
                 Our team will be in touch with you shortly to discuss the next steps.
               </p>
             </div>
@@ -214,11 +269,26 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-surface">
       <Head>
         <title>Self Cast Studios | Onboarding</title>
         <meta name="description" content="Complete your onboarding process with Self Cast Studios" />
       </Head>
+      
+      {/* Brand Header */}
+      <div className="brand-header">
+        <div className="brand-header-inner">
+          <a href="https://selfcaststudios.com" className="brand-logo">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M2 17L12 22L22 17" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M2 12L12 17L22 12" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span className="brand-logo-text">Self Cast Studios</span>
+          </a>
+        </div>
+        <div className="accent-strip"></div>
+      </div>
       
       {/* Facebook Pixel Code */}
       <Script
@@ -240,398 +310,280 @@ export default function OnboardingPage() {
         }}
       />
       
-      {/* Calendly Integration */}
-      <Script
-        id="calendly-widget"
-        src="https://assets.calendly.com/assets/external/widget.js"
-        strategy="afterInteractive"
-        onLoad={() => {
-          // Initialize Calendly after script loads
-          if (typeof window !== 'undefined' && window.Calendly) {
-            window.Calendly.initInlineWidget({
-              url: 'https://calendly.com/selfcaststudios/workshop-interview?hide_gdpr_banner=1',
-              parentElement: document.querySelector('.calendly-inline-widget'),
-              prefill: {},
-              utm: {}
-            });
-          }
-        }}
-      />
+      {/* Calendly Integration - Script is now loaded via useEffect */}
       
-      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
-            Welcome to Self Cast Studios
-          </h1>
-          <p className="mt-5 max-w-xl mx-auto text-xl text-gray-500">
-            Complete this form to begin your onboarding process
-          </p>
+      <div className="onboarding-container">
+        <div className="onboarding-header">
+          <h1>Welcome to Self Cast Studios</h1>
+          <p>Complete this form to begin your onboarding process</p>
         </div>
         
-        <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            {submitError && (
-              <div className="mb-4 bg-red-50 border-l-4 border-red-400 p-4">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-red-700">
-                      {submitError}
-                    </p>
-                  </div>
+        <div className="onboarding-form">
+          {submitError && (
+            <div style={{ 
+              marginBottom: '1.5rem', 
+              padding: '1rem', 
+              borderRadius: '0.5rem', 
+              backgroundColor: 'rgba(255, 59, 48, 0.1)', 
+              borderLeft: '4px solid var(--error-color)' 
+            }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                <div style={{ flexShrink: 0 }}>
+                  <svg 
+                    style={{ width: '1.25rem', height: '1.25rem', color: 'var(--error-color)' }} 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    viewBox="0 0 20 20" 
+                    fill="currentColor"
+                  >
+                    <path 
+                      fillRule="evenodd" 
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" 
+                      clipRule="evenodd" 
+                    />
+                  </svg>
+                </div>
+                <div style={{ marginLeft: '0.75rem' }}>
+                  <p style={{ fontSize: '0.875rem', color: 'var(--error-color)' }}>
+                    {submitError}
+                  </p>
                 </div>
               </div>
-            )}
+            </div>
+          )}
+          
+          <form onSubmit={handleSubmit}>
+            <div className="form-section">
+              <h3>Personal Information</h3>
+              <p>Please provide your contact information.</p>
+              
+              <div className="form-grid">
+                <div className="form-field">
+                  <label htmlFor="fullName">Full name *</label>
+                  <input
+                    type="text"
+                    name="fullName"
+                    id="fullName"
+                    autoComplete="name"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    className={formErrors.fullName ? 'error' : ''}
+                  />
+                  {formErrors.fullName && (
+                    <p className="error">{formErrors.fullName}</p>
+                  )}
+                </div>
+                
+                <div className="form-field">
+                  <label htmlFor="title">Project title</label>
+                  <input
+                    type="text"
+                    name="title"
+                    id="title"
+                    value={formData.title}
+                    onChange={handleChange}
+                  />
+                </div>
+                
+                <div className="form-field">
+                  <label htmlFor="email">Email address *</label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={formErrors.email ? 'error' : ''}
+                  />
+                  {formErrors.email && (
+                    <p className="error">{formErrors.email}</p>
+                  )}
+                </div>
+                
+                <div className="form-field">
+                  <label htmlFor="phone">Phone number *</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    id="phone"
+                    autoComplete="tel"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className={formErrors.phone ? 'error' : ''}
+                  />
+                  {formErrors.phone && (
+                    <p className="error">{formErrors.phone}</p>
+                  )}
+                </div>
+              </div>
+            </div>
             
-            <form onSubmit={handleSubmit} className="space-y-8 divide-y divide-gray-200">
-              <div className="space-y-8 divide-y divide-gray-200">
-                <div>
-                  <div>
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">
-                      Personal Information
-                    </h3>
-                    <p className="mt-1 text-sm text-gray-500">
-                      Please provide your contact information.
-                    </p>
-                  </div>
-                  
-                  <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                    <div className="sm:col-span-3">
-                      <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
-                        Full name *
-                      </label>
-                      <div className="mt-1">
-                        <input
-                          type="text"
-                          name="fullName"
-                          id="fullName"
-                          autoComplete="name"
-                          value={formData.fullName}
-                          onChange={handleChange}
-                          className={`shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md ${formErrors.fullName ? 'border-red-300' : ''}`}
-                        />
-                        {formErrors.fullName && (
-                          <p className="mt-2 text-sm text-red-600">{formErrors.fullName}</p>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className="sm:col-span-3">
-                      <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-                        Project title
-                      </label>
-                      <div className="mt-1">
-                        <input
-                          type="text"
-                          name="title"
-                          id="title"
-                          value={formData.title}
-                          onChange={handleChange}
-                          className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="sm:col-span-4">
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                        Email address *
-                      </label>
-                      <div className="mt-1">
-                        <input
-                          id="email"
-                          name="email"
-                          type="email"
-                          autoComplete="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          className={`shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md ${formErrors.email ? 'border-red-300' : ''}`}
-                        />
-                        {formErrors.email && (
-                          <p className="mt-2 text-sm text-red-600">{formErrors.email}</p>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className="sm:col-span-3">
-                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                        Phone number *
-                      </label>
-                      <div className="mt-1">
-                        <input
-                          type="tel"
-                          name="phone"
-                          id="phone"
-                          autoComplete="tel"
-                          value={formData.phone}
-                          onChange={handleChange}
-                          className={`shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md ${formErrors.phone ? 'border-red-300' : ''}`}
-                        />
-                        {formErrors.phone && (
-                          <p className="mt-2 text-sm text-red-600">{formErrors.phone}</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+            <div className="form-section">
+              <h3>Social Media Profiles</h3>
+              <p>Add your social media profiles to connect with your audience.</p>
+              
+              <div className="form-grid">
+                <div className="form-field">
+                  <label htmlFor="linkedin">LinkedIn</label>
+                  <input
+                    type="text"
+                    name="linkedin"
+                    id="linkedin"
+                    value={formData.linkedin}
+                    onChange={handleChange}
+                  />
                 </div>
                 
-                <div className="pt-8">
-                  <div>
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">
-                      Social Media Profiles
-                    </h3>
-                    <p className="mt-1 text-sm text-gray-500">
-                      Add your social media profiles to connect with your audience.
-                    </p>
-                  </div>
-                  
-                  <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                    <div className="sm:col-span-3">
-                      <label htmlFor="linkedin" className="block text-sm font-medium text-gray-700">
-                        LinkedIn
-                      </label>
-                      <div className="mt-1">
-                        <input
-                          type="text"
-                          name="linkedin"
-                          id="linkedin"
-                          value={formData.linkedin}
-                          onChange={handleChange}
-                          className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="sm:col-span-3">
-                      <label htmlFor="instagram" className="block text-sm font-medium text-gray-700">
-                        Instagram
-                      </label>
-                      <div className="mt-1">
-                        <input
-                          type="text"
-                          name="instagram"
-                          id="instagram"
-                          value={formData.instagram}
-                          onChange={handleChange}
-                          className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="sm:col-span-3">
-                      <label htmlFor="facebook" className="block text-sm font-medium text-gray-700">
-                        Facebook
-                      </label>
-                      <div className="mt-1">
-                        <input
-                          type="text"
-                          name="facebook"
-                          id="facebook"
-                          value={formData.facebook}
-                          onChange={handleChange}
-                          className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="sm:col-span-3">
-                      <label htmlFor="twitter" className="block text-sm font-medium text-gray-700">
-                        Twitter
-                      </label>
-                      <div className="mt-1">
-                        <input
-                          type="text"
-                          name="twitter"
-                          id="twitter"
-                          value={formData.twitter}
-                          onChange={handleChange}
-                          className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                        />
-                      </div>
-                    </div>
-                  </div>
+                <div className="form-field">
+                  <label htmlFor="instagram">Instagram</label>
+                  <input
+                    type="text"
+                    name="instagram"
+                    id="instagram"
+                    value={formData.instagram}
+                    onChange={handleChange}
+                  />
                 </div>
                 
-                <div className="pt-8">
-                  <div>
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">
-                      Brand Preferences
-                    </h3>
-                    <p className="mt-1 text-sm text-gray-500">
-                      Select your preferred color scheme and style.
-                    </p>
-                  </div>
-                  
-                  <div className="mt-6">
-                    <fieldset>
-                      <legend className="text-base font-medium text-gray-900">Color Preference</legend>
-                      <div className="mt-4 space-y-4">
-                        <div className="flex items-center space-x-3">
-                          {['#4a6fa5', '#6b7280', '#10b981', '#8b5cf6', '#ef4444'].map((color) => (
-                            <button
-                              key={color}
-                              type="button"
-                              onClick={() => handleColorSelect(color, formData.stylePackage)}
-                              className={`h-8 w-8 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
-                                formData.colorPreference === color ? 'ring-2 ring-offset-2 ring-indigo-500' : ''
-                              }`}
-                              style={{ backgroundColor: color }}
-                              aria-label={`Select color ${color}`}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    </fieldset>
-                    
-                    <fieldset className="mt-6">
-                      <legend className="text-base font-medium text-gray-900">Style Package</legend>
-                      <div className="mt-4 space-y-4">
-                        <div className="flex items-center">
-                          <input
-                            id="standard-professional"
-                            name="stylePackage"
-                            type="radio"
-                            value="standard-professional"
-                            checked={formData.stylePackage === 'standard-professional'}
-                            onChange={() => handleColorSelect(formData.colorPreference, 'standard-professional')}
-                            className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
-                          />
-                          <label htmlFor="standard-professional" className="ml-3 block text-sm font-medium text-gray-700">
-                            Standard Professional
-                          </label>
-                        </div>
-                        <div className="flex items-center">
-                          <input
-                            id="modern-minimal"
-                            name="stylePackage"
-                            type="radio"
-                            value="modern-minimal"
-                            checked={formData.stylePackage === 'modern-minimal'}
-                            onChange={() => handleColorSelect(formData.colorPreference, 'modern-minimal')}
-                            className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
-                          />
-                          <label htmlFor="modern-minimal" className="ml-3 block text-sm font-medium text-gray-700">
-                            Modern Minimal
-                          </label>
-                        </div>
-                        <div className="flex items-center">
-                          <input
-                            id="bold-creative"
-                            name="stylePackage"
-                            type="radio"
-                            value="bold-creative"
-                            checked={formData.stylePackage === 'bold-creative'}
-                            onChange={() => handleColorSelect(formData.colorPreference, 'bold-creative')}
-                            className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
-                          />
-                          <label htmlFor="bold-creative" className="ml-3 block text-sm font-medium text-gray-700">
-                            Bold Creative
-                          </label>
-                        </div>
-                      </div>
-                    </fieldset>
-                  </div>
+                <div className="form-field">
+                  <label htmlFor="facebook">Facebook</label>
+                  <input
+                    type="text"
+                    name="facebook"
+                    id="facebook"
+                    value={formData.facebook}
+                    onChange={handleChange}
+                  />
                 </div>
                 
-                <div className="pt-8">
-                  <div>
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">
-                      Workshop Questions
-                    </h3>
-                    <p className="mt-1 text-sm text-gray-500">
-                      These questions help us prepare for our initial workshop session.
-                    </p>
-                  </div>
-                  
-                  <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                    <div className="sm:col-span-6">
-                      <label htmlFor="successDefinition" className="block text-sm font-medium text-gray-700">
-                        How do you define success for your personal brand?
-                      </label>
-                      <div className="mt-1">
-                        <textarea
-                          id="successDefinition"
-                          name="successDefinition"
-                          rows={3}
-                          value={formData.successDefinition}
-                          onChange={handleChange}
-                          className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="sm:col-span-6">
-                      <label htmlFor="contentGoals" className="block text-sm font-medium text-gray-700">
-                        What are your main content goals?
-                      </label>
-                      <div className="mt-1">
-                        <textarea
-                          id="contentGoals"
-                          name="contentGoals"
-                          rows={3}
-                          value={formData.contentGoals}
-                          onChange={handleChange}
-                          className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="sm:col-span-6">
-                      <label htmlFor="challenges" className="block text-sm font-medium text-gray-700">
-                        What challenges are you facing with your current online presence?
-                      </label>
-                      <div className="mt-1">
-                        <textarea
-                          id="challenges"
-                          name="challenges"
-                          rows={3}
-                          value={formData.challenges}
-                          onChange={handleChange}
-                          className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                        />
-                      </div>
-                    </div>
-                  </div>
+                <div className="form-field">
+                  <label htmlFor="twitter">Twitter</label>
+                  <input
+                    type="text"
+                    name="twitter"
+                    id="twitter"
+                    value={formData.twitter}
+                    onChange={handleChange}
+                  />
                 </div>
-                
-                <div className="pt-8">
-                  <div>
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">
-                      Schedule Your Workshop Interview
-                    </h3>
-                    <p className="mt-1 text-sm text-gray-500">
-                      Select a time for your initial workshop interview.
-                    </p>
-                  </div>
-                  
-                  <div className="mt-6">
-                    <div 
-                      className="calendly-inline-widget" 
-                      data-url="https://calendly.com/selfcaststudios/workshop-interview?hide_gdpr_banner=1"
-                      style={{ minWidth: '320px', height: '630px' }}
-                    ></div>
-                  </div>
+              </div>
+            </div>
+            
+            <div className="form-section">
+              <h3>Brand Preferences</h3>
+              <p>Select your preferred color scheme and style.</p>
+              
+              <div className="form-field">
+                <label>Color Preference</label>
+                <div className="color-options">
+                  {['#007AFF', '#1a1a1a', '#10b981', '#8b5cf6', '#ef4444'].map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => handleColorSelect(color)}
+                      className={`color-option ${formData.colorPreference === color ? 'selected' : ''}`}
+                      style={{ backgroundColor: color }}
+                      aria-label={`Select color ${color}`}
+                    />
+                  ))}
                 </div>
               </div>
               
-              <div className="pt-5">
-                <div className="flex justify-end">
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className={`ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
-                      isSubmitting ? 'opacity-75 cursor-not-allowed' : ''
-                    }`}
-                  >
-                    {isSubmitting ? 'Submitting...' : 'Submit'}
-                  </button>
+              <div className="form-field">
+                <label>Style Package</label>
+                <div className="style-options">
+                  <div className="style-option">
+                    <input
+                      id="standard-professional"
+                      name="stylePackage"
+                      type="radio"
+                      value="standard-professional"
+                      checked={formData.stylePackage === 'standard-professional'}
+                      onChange={() => handleColorSelect(formData.colorPreference, 'standard-professional')}
+                    />
+                    <label htmlFor="standard-professional">Standard Professional</label>
+                  </div>
+                  <div className="style-option">
+                    <input
+                      id="modern-minimal"
+                      name="stylePackage"
+                      type="radio"
+                      value="modern-minimal"
+                      checked={formData.stylePackage === 'modern-minimal'}
+                      onChange={() => handleColorSelect(formData.colorPreference, 'modern-minimal')}
+                    />
+                    <label htmlFor="modern-minimal">Modern Minimal</label>
+                  </div>
+                  <div className="style-option">
+                    <input
+                      id="bold-creative"
+                      name="stylePackage"
+                      type="radio"
+                      value="bold-creative"
+                      checked={formData.stylePackage === 'bold-creative'}
+                      onChange={() => handleColorSelect(formData.colorPreference, 'bold-creative')}
+                    />
+                    <label htmlFor="bold-creative">Bold Creative</label>
+                  </div>
                 </div>
               </div>
-            </form>
-          </div>
+            </div>
+            
+            <div className="form-section">
+              <h3>Workshop Questions</h3>
+              <p>These questions help us prepare for our initial workshop session.</p>
+              
+              <div className="form-field">
+                <label htmlFor="successDefinition">How do you define success for your personal brand?</label>
+                <textarea
+                  id="successDefinition"
+                  name="successDefinition"
+                  rows={3}
+                  value={formData.successDefinition}
+                  onChange={handleChange}
+                />
+              </div>
+              
+              <div className="form-field">
+                <label htmlFor="contentGoals">What are your main content goals?</label>
+                <textarea
+                  id="contentGoals"
+                  name="contentGoals"
+                  rows={3}
+                  value={formData.contentGoals}
+                  onChange={handleChange}
+                />
+              </div>
+              
+              <div className="form-field">
+                <label htmlFor="challenges">What challenges are you facing with your current online presence?</label>
+                <textarea
+                  id="challenges"
+                  name="challenges"
+                  rows={3}
+                  value={formData.challenges}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+            
+            <div className="form-section">
+              <h3>Schedule Your Workshop Interview</h3>
+              <p>Select a time for your initial workshop interview.</p>
+              
+              <div className="calendly-container" style={{ minHeight: '750px' }}></div>
+            </div>
+            
+            <div style={{ marginTop: '2rem', textAlign: 'right' }}>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="submit-button"
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit'}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>

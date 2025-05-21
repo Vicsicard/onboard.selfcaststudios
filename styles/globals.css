@@ -1,27 +1,76 @@
-/* Global styles for the SelfCast Onboard application */
+/* Global styles for the SelfCast Onboard application with Self Cast Studios branding */
 
 :root {
-  --primary-color: #4a6fa5;
-  --secondary-color: #1e293b;
-  --accent-color: #c8a456;
-  --text-color: #333;
-  --bg-color: #f5f5f5;
-  --card-bg: #fff;
+  /* Primary brand colors */
+  --primary-color: #1a1a1a;
+  --primary-light: #2a2a2a;
+  --primary-dark: #0a0a0a;
+  
+  /* Accent colors */
+  --accent-color: #007AFF;
+  --accent-light: #3395FF;
+  --accent-dark: #0055CC;
+  --accent-gradient: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+  
+  /* Secondary accent colors */
+  --secondary-color: #FF9500;
+  --secondary-light: #FFAC33;
+  --secondary-dark: #CC7600;
+  
+  /* Surface colors */
+  --surface-color: #ffffff;
+  --surface-dark: #f5f5f5;
+  --surface-darker: #e0e0e0;
+  --surface-gradient: linear-gradient(145deg, var(--surface-color), var(--surface-dark));
+  
+  /* Text colors */
+  --text-white: #ffffff;
+  --text-light: #666666;
+  --text-dark: #1a1a1a;
+  --title-color: #007AFF; /* For visual harmony with footer */
+  
+  /* Neutral colors */
+  --neutral-light: #f5f5f5;
+  --neutral: #e0e0e0;
+  --neutral-dark: #666666;
+  
+  /* Status colors */
+  --error-color: #ff3b30;
+  --success-color: #34c759;
+  --warning-color: #ffcc00;
+  --info-color: #5ac8fa;
+  
+  /* Design elements */
+  --border-radius: 1rem;
+  --border-radius-sm: 0.5rem;
+  --border-radius-lg: 1.5rem;
+  
+  /* Shadows for depth */
+  --shadow-custom: 0 4px 20px rgba(0, 0, 0, 0.16);
+  --shadow-custom-hover: 0 8px 30px rgba(0, 0, 0, 0.24);
+  --shadow-custom-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.09);
+  --shadow-custom-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.09);
+  --shadow-custom-elevated: 0 10px 20px rgba(0, 0, 0, 0.15), 0 6px 6px rgba(0, 0, 0, 0.09);
+  --shadow-custom-3d: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 -2px 5px rgba(255, 255, 255, 0.8);
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  transition: all 0.2s ease;
 }
 
 html,
 body {
   font-family: 'Raleway', -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-  background-color: var(--bg-color);
-  color: var(--text-color);
+  color: var(--text-dark);
+  background-color: var(--surface-dark);
 }
+
+/* Import onboarding styles */
+@import 'onboarding.css';
 
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Playfair Display', serif;
