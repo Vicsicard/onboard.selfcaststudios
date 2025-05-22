@@ -33,17 +33,69 @@ const generateProjectId = (projectName) => {
     '-' + Math.floor(Math.random() * 100);
 };
 
-// Send confirmation email - now using the imported utility function
+// Send confirmation email with enhanced error handling and retry logic
 const sendConfirmationEmail = async (clientName, clientEmail, projectDetails) => {
-  try {
-    const info = await sendWelcomeEmail(clientName, clientEmail, projectDetails);
-    console.log('Confirmation email sent successfully');
-    return info;
-  } catch (error) {
-    console.error('Failed to send confirmation email:', error);
-    // Don't throw the error here - we want the API to continue even if email fails
-    return null;
+  console.log(`[Email] Attempting to send confirmation email to ${clientEmail} for project ${projectDetails.projectId}`);
+  
+  // Maximum number of retry attempts
+  const MAX_RETRIES = 3;
+  let retryCount = 0;
+  let lastError = null;
+  
+  // Retry logic with exponential backoff
+  while (retryCount < MAX_RETRIES) {
+    try {
+      console.log(`[Email] Attempt ${retryCount + 1} of ${MAX_RETRIES} to send email to ${clientEmail}`);
+      
+      // Log email details for debugging
+      console.log(`[Email] Sending to: ${clientEmail}`);
+      console.log(`[Email] Client name: ${clientName}`);
+      console.log(`[Email] Project details:`, JSON.stringify(projectDetails));
+      
+      // Attempt to send the email
+      const info = await sendWelcomeEmail(clientName, clientEmail, projectDetails);
+      
+      // Log success details
+      console.log(`[Email] Confirmation email sent successfully to ${clientEmail}`);
+      console.log(`[Email] Message ID: ${info.messageId}`);
+      console.log(`[Email] Response: ${info.response}`);
+      
+      // Store email sending record in database if needed
+      // This could be added here to track all sent emails
+      
+      return info;
+    } catch (error) {
+      lastError = error;
+      retryCount++;
+      
+      // Log detailed error information
+      console.error(`[Email] Attempt ${retryCount} failed:`, error.message);
+      console.error(`[Email] Error stack:`, error.stack);
+      
+      if (error.code) {
+        console.error(`[Email] Error code: ${error.code}`);
+      }
+      
+      if (retryCount < MAX_RETRIES) {
+        // Exponential backoff: wait longer between each retry
+        const delayMs = 1000 * Math.pow(2, retryCount);
+        console.log(`[Email] Retrying in ${delayMs / 1000} seconds...`);
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+      }
+    }
   }
+  
+  // All retries failed
+  console.error(`[Email] All ${MAX_RETRIES} attempts to send email to ${clientEmail} failed`);
+  console.error(`[Email] Last error:`, lastError);
+  
+  // Don't throw the error here - we want the API to continue even if email fails
+  // But we return the error information for logging purposes
+  return {
+    success: false,
+    error: lastError ? lastError.message : 'Unknown error',
+    timestamp: new Date().toISOString()
+  };
 };
 
 export default async function handler(req, res) {

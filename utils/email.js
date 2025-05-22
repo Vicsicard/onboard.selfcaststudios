@@ -106,7 +106,7 @@ export async function sendWelcomeEmail(clientName, clientEmail, projectDetails) 
             <li><strong>Project ID:</strong> ${projectDetails.projectId}</li>
           </ul>
           
-          <a href="https://dashboard.selfcaststudios.com/login" style="display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-top: 15px;">Access Your Dashboard</a>
+          <a href="https://clients.selfcaststudios.com/" style="display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-top: 15px;">Access Your Dashboard</a>
           
           <div style="background-color: #f9f9f9; border-left: 4px solid #4CAF50; padding: 15px; margin: 20px 0;">
             <p style="margin: 0;"><strong>Important Timeline Information:</strong></p>
