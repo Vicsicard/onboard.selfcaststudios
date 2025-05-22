@@ -5,9 +5,9 @@ const http = require('http');
 // URL to ping (your Render deployment URL)
 const url = 'https://onboard-selfcaststudios.onrender.com';
 
-// Ping interval in milliseconds (5 minutes = 300000 ms)
-// Render free tier spins down with inactivity, so we need to ping more frequently
-const interval = 300000;
+// Ping interval in milliseconds (30 seconds = 30000 ms)
+// Render free tier spins down with inactivity after max 50 seconds, so we need to ping every 30 seconds
+const interval = 30000;
 
 function pingServer() {
   console.log(`[${new Date().toISOString()}] Pinging server to keep alive: ${url}`);
