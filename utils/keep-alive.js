@@ -3,7 +3,7 @@ const https = require('https');
 const http = require('http');
 
 // URL to ping (your Render deployment URL)
-const url = process.env.NEXT_PUBLIC_SITE_URL || 'https://onboard.selfcaststudios.com';
+const url = process.env.NEXT_PUBLIC_SITE_URL || 'https://onboard-selfcaststudios.onrender.com';
 
 // Ping interval in milliseconds (15 minutes = 900000 ms)
 const interval = 900000;
