@@ -1,26 +1,98 @@
 import nodemailer from 'nodemailer';
 
-// Create reusable transporter using Bluehost SMTP
-export function createTransporter() {
-  return nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || 'mail.selfcaststudios.com',
-    port: 465,
-    secure: true, // true for 465, false for other ports
-    auth: {
-      user: process.env.EMAIL_USER || 'welcome@selfcaststudios.com',
-      pass: process.env.EMAIL_PASSWORD // Must be set in environment variables
+// Create reusable transporter using Bluehost SMTP or fallback to test account
+export async function createTransporter() {
+  // Check if we should use test email
+  // Only use the USE_TEST_EMAIL flag, ignore NODE_ENV
+  const useTestEmail = process.env.USE_TEST_EMAIL === 'true';
+  
+  console.log(`USE_TEST_EMAIL flag: ${process.env.USE_TEST_EMAIL}`);
+  console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
+  console.log(`Using test email: ${useTestEmail}`);
+  
+  // Use test email account for development
+  if (useTestEmail) {
+    console.log('Using test email account for development');
+    try {
+      const testAccount = await nodemailer.createTestAccount();
+      
+      console.log('Test email credentials:', {
+        user: testAccount.user,
+        pass: testAccount.pass,
+        smtp: {
+          host: testAccount.smtp.host,
+          port: testAccount.smtp.port,
+          secure: testAccount.smtp.secure
+        }
+      });
+      
+      // Create a transporter using the test account
+      return nodemailer.createTransport({
+        host: testAccount.smtp.host,
+        port: testAccount.smtp.port,
+        secure: testAccount.smtp.secure,
+        auth: {
+          user: testAccount.user,
+          pass: testAccount.pass
+        }
+      });
+    } catch (error) {
+      console.error('Failed to create test email account:', error);
+      // Fall back to console logging if test account creation fails
+      return {
+        sendMail: (mailOptions) => {
+          console.log('Email would have been sent with the following options:', mailOptions);
+          return Promise.resolve({ messageId: 'test-message-id' });
+        }
+      };
     }
-  });
+  }
+  
+  // Use production email settings
+  // Use Bluehost-specific configuration
+  const host = process.env.EMAIL_HOST || 'mail.selfcaststudios.com';
+  const port = parseInt(process.env.EMAIL_PORT || '465', 10);
+  const secure = process.env.EMAIL_SECURE === 'true';
+  
+  // Create Bluehost-specific email configuration
+  const config = {
+    host: host,
+    port: port,
+    secure: secure, // true for 465, false for other ports
+    auth: {
+      user: process.env.EMAIL_USER || 'defense@selfcaststudios.com',
+      pass: process.env.EMAIL_PASSWORD
+    },
+    tls: {
+      // Do not fail on invalid certs
+      rejectUnauthorized: false
+    },
+    debug: true // Enable debug output
+  };
+  
+  console.log(`Using email configuration for host: ${host}`);
+  return nodemailer.createTransport(config);
 }
 
 // Send welcome/confirmation email
 export async function sendWelcomeEmail(clientName, clientEmail, projectDetails) {
-  const transporter = createTransporter();
-  
   try {
-    const info = await transporter.sendMail({
-      from: '"Self Cast Studios" <welcome@selfcaststudios.com>',
+    console.log(`Attempting to send welcome email to ${clientEmail}`);
+    const transporter = await createTransporter();
+    
+    // Verify connection configuration
+    transporter.verify(function(error, success) {
+      if (error) {
+        console.error('SMTP connection verification failed:', error);
+      } else {
+        console.log('SMTP server is ready to take our messages');
+      }
+    });
+    
+    const mailOptions = {
+      from: '"Self Cast Studios" <defense@selfcaststudios.com>',
       to: clientEmail,
+      cc: 'newclient@selfcaststudios.com',
       subject: "Welcome to Self Cast Studios!",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -34,14 +106,21 @@ export async function sendWelcomeEmail(clientName, clientEmail, projectDetails) 
             <li><strong>Project ID:</strong> ${projectDetails.projectId}</li>
           </ul>
           
-          <a href="https://selfcaststudios.com/login" style="display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-top: 15px;">Access Your Dashboard</a>
+          <a href="https://dashboard.selfcaststudios.com/login" style="display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-top: 15px;">Access Your Dashboard</a>
+          
+          <div style="background-color: #f9f9f9; border-left: 4px solid #4CAF50; padding: 15px; margin: 20px 0;">
+            <p style="margin: 0;"><strong>Important Timeline Information:</strong></p>
+            <p style="margin: 10px 0 0;">Please note that your website and new content will not be available until after the workshop and creative process is complete. This typically takes about 14 days after your workshop is completed.</p>
+          </div>
           
           <p style="margin-top: 20px;">If you have any questions, please don't hesitate to contact us.</p>
           <p>Best regards,<br>The Self Cast Studios Team</p>
         </div>
       `
-    });
+    };
     
+    console.log('Sending email with options:', JSON.stringify(mailOptions, null, 2));
+    const info = await transporter.sendMail(mailOptions);
     console.log('Email sent:', info.messageId);
     return info;
   } catch (error) {
@@ -52,12 +131,23 @@ export async function sendWelcomeEmail(clientName, clientEmail, projectDetails) 
 
 // Send appointment confirmation email
 export async function sendAppointmentEmail(clientName, clientEmail, appointmentDetails) {
-  const transporter = createTransporter();
-  
   try {
-    const info = await transporter.sendMail({
-      from: '"Self Cast Studios" <welcome@selfcaststudios.com>',
+    console.log(`Attempting to send appointment email to ${clientEmail}`);
+    const transporter = await createTransporter();
+    
+    // Verify connection configuration
+    transporter.verify(function(error, success) {
+      if (error) {
+        console.error('SMTP connection verification failed:', error);
+      } else {
+        console.log('SMTP server is ready to take our messages');
+      }
+    });
+    
+    const mailOptions = {
+      from: '"Self Cast Studios" <defense@selfcaststudios.com>',
       to: clientEmail,
+      cc: 'newclient@selfcaststudios.com',
       subject: "Your Workshop Interview Appointment Confirmation",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -83,8 +173,10 @@ export async function sendAppointmentEmail(clientName, clientEmail, appointmentD
           <p>Best regards,<br>The Self Cast Studios Team</p>
         </div>
       `
-    });
+    };
     
+    console.log('Sending appointment email with options:', JSON.stringify(mailOptions, null, 2));
+    const info = await transporter.sendMail(mailOptions);
     console.log('Appointment email sent:', info.messageId);
     return info;
   } catch (error) {

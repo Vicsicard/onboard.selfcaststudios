@@ -11,13 +11,13 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "mongodb": "^5.0.0",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.5.0",
+    "mongodb": "^5.9.2",
     "next": "^13.2.4",
     "nodemailer": "^6.9.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "dotenv": "^16.0.3",
-    "bcryptjs": "^2.4.3"
+    "react-dom": "^18.2.0"
   },
   "engines": {
     "node": ">=16.0.0"

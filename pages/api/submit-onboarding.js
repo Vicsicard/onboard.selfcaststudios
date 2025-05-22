@@ -1,19 +1,8 @@
 import { MongoClient } from 'mongodb';
-import nodemailer from 'nodemailer';
 import bcrypt from 'bcryptjs';
+import { sendWelcomeEmail } from '../../utils/email';
 
-// Create reusable transporter using Bluehost SMTP
-const createTransporter = () => {
-  return nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || 'mail.selfcaststudios.com',
-    port: 465,
-    secure: true, // true for 465, false for other ports
-    auth: {
-      user: process.env.EMAIL_USER || 'welcome@selfcaststudios.com',
-      pass: process.env.EMAIL_PASSWORD // Must be set in environment variables
-    }
-  });
-};
+// Email functionality is now imported from utils/email.js
 
 // Connect to MongoDB
 const connectToDatabase = async () => {
@@ -23,12 +12,15 @@ const connectToDatabase = async () => {
     throw new Error('MONGODB_URI environment variable is not set');
   }
   
+  // Get database name from environment variables or use default
+  const dbName = process.env.MONGODB_DB || 'new-self-website-5-15-25';
+  
   const client = new MongoClient(uri);
   await client.connect();
   
   return {
     client,
-    db: client.db()
+    db: client.db(dbName)
   };
 };
 
@@ -41,35 +33,17 @@ const generateProjectId = (projectName) => {
     '-' + Math.floor(Math.random() * 100);
 };
 
-// Send confirmation email
+// Send confirmation email - now using the imported utility function
 const sendConfirmationEmail = async (clientName, clientEmail, projectDetails) => {
-  const transporter = createTransporter();
-  
-  const info = await transporter.sendMail({
-    from: '"Self Cast Studios" <welcome@selfcaststudios.com>',
-    to: clientEmail,
-    subject: "Welcome to Self Cast Studios!",
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>Welcome, ${clientName}!</h2>
-        <p>Thank you for joining Self Cast Studios. Your project "${projectDetails.name}" has been created.</p>
-        
-        <p>You can access your project dashboard at any time using your email address: ${clientEmail}</p>
-        <p>We've created an account for you with the following details:</p>
-        <ul>
-          <li><strong>Login Email:</strong> ${clientEmail}</li>
-          <li><strong>Project ID:</strong> ${projectDetails.projectId}</li>
-        </ul>
-        
-        <a href="https://selfcaststudios.com/login" style="display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-top: 15px;">Access Your Dashboard</a>
-        
-        <p style="margin-top: 20px;">If you have any questions, please don't hesitate to contact us.</p>
-        <p>Best regards,<br>The Self Cast Studios Team</p>
-      </div>
-    `
-  });
-  
-  return info;
+  try {
+    const info = await sendWelcomeEmail(clientName, clientEmail, projectDetails);
+    console.log('Confirmation email sent successfully');
+    return info;
+  } catch (error) {
+    console.error('Failed to send confirmation email:', error);
+    // Don't throw the error here - we want the API to continue even if email fails
+    return null;
+  }
 };
 
 export default async function handler(req, res) {
