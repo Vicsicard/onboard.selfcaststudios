@@ -8,15 +8,10 @@ export default function OnboardingPage() {
     email: '',
     phone: '',
     title: '',
-    linkedin: '',
-    instagram: '',
-    facebook: '',
-    twitter: '',
-    colorPreference: '#007AFF',
-    stylePackage: 'standard-professional',
     successDefinition: '',
     contentGoals: '',
-    challenges: ''
+    challenges: '',
+    interests: ''
   });
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -112,14 +107,7 @@ export default function OnboardingPage() {
     }
   };
 
-  // Handle color selection
-  const handleColorSelect = (color, style) => {
-    setFormData(prev => ({
-      ...prev,
-      colorPreference: color,
-      stylePackage: style || prev.stylePackage
-    }));
-  };
+
 
   // Validate form
   const validateForm = () => {
@@ -160,20 +148,13 @@ export default function OnboardingPage() {
       const apiData = {
         clientName: formData.fullName,
         clientEmail: formData.email,
-        projectName: formData.title || `${formData.fullName}'s Brand Site`,
+        projectName: formData.title || `${formData.fullName}'s Workshop`,
         phoneNumber: formData.phone,
-        colorPreference: formData.colorPreference,
-        stylePackage: formData.stylePackage,
-        socialMedia: {
-          linkedin: formData.linkedin || '',
-          instagram: formData.instagram || '',
-          facebook: formData.facebook || '',
-          twitter: formData.twitter || ''
-        },
         workshopResponses: {
           successDefinition: formData.successDefinition || '',
           contentGoals: formData.contentGoals || '',
-          challenges: formData.challenges || ''
+          challenges: formData.challenges || '',
+          interests: formData.interests || ''
         }
       };
 
@@ -208,15 +189,10 @@ export default function OnboardingPage() {
         email: '',
         phone: '',
         title: '',
-        linkedin: '',
-        instagram: '',
-        facebook: '',
-        twitter: '',
-        colorPreference: '#007AFF',
-        stylePackage: 'standard-professional',
         successDefinition: '',
         contentGoals: '',
-        challenges: ''
+        challenges: '',
+        interests: ''
       });
       
     } catch (error) {
@@ -232,14 +208,14 @@ export default function OnboardingPage() {
     return (
       <div className="min-h-screen bg-gradient-surface">
         <Head>
-          <title>Onboarding Complete | Self Cast Studios</title>
-          <meta name="description" content="Self Cast Studios onboarding process" />
+          <title>Schedule Your Free Workshop | Self Cast Studios</title>
+          <meta name="description" content="Schedule your free Self Cast Workshop and discover your authentic voice" />
         </Head>
         
         <div className="onboarding-container">
           <div className="onboarding-header">
-            <h2>Onboarding Complete!</h2>
-            <p>Thank you for completing the onboarding process.</p>
+            <h2>Workshop Scheduled!</h2>
+            <p>Thank you for scheduling your free Self Cast Workshop.</p>
           </div>
 
           <div className="onboarding-form">
@@ -271,8 +247,8 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen bg-gradient-surface">
       <Head>
-        <title>Self Cast Studios | Onboarding</title>
-        <meta name="description" content="Complete your onboarding process with Self Cast Studios" />
+        <title>Schedule Your Free Workshop | Self Cast Studios</title>
+        <meta name="description" content="Schedule your free Self Cast Workshop and discover your authentic voice" />
       </Head>
       
       {/* Brand Header */}
@@ -314,8 +290,8 @@ export default function OnboardingPage() {
       
       <div className="onboarding-container">
         <div className="onboarding-header">
-          <h1>Welcome to Self Cast Studios</h1>
-          <p>Complete this form to begin your onboarding process</p>
+          <h1>Your Story. Your Voice. Start Here.</h1>
+          <p>Complete this form to schedule your free Self Cast Workshop</p>
         </div>
         
         <div className="onboarding-form">
@@ -364,6 +340,7 @@ export default function OnboardingPage() {
                     name="fullName"
                     id="fullName"
                     autoComplete="name"
+                    placeholder="Jane Smith"
                     value={formData.fullName}
                     onChange={handleChange}
                     className={formErrors.fullName ? 'error' : ''}
@@ -374,11 +351,12 @@ export default function OnboardingPage() {
                 </div>
                 
                 <div className="form-field">
-                  <label htmlFor="title">Project title</label>
+                  <label htmlFor="title">What would you like to call your workshop? (optional)</label>
                   <input
                     type="text"
                     name="title"
                     id="title"
+                    placeholder="My Journey to Finding My Voice"
                     value={formData.title}
                     onChange={handleChange}
                   />
@@ -391,6 +369,7 @@ export default function OnboardingPage() {
                     name="email"
                     type="email"
                     autoComplete="email"
+                    placeholder="jane@example.com"
                     value={formData.email}
                     onChange={handleChange}
                     className={formErrors.email ? 'error' : ''}
@@ -407,6 +386,7 @@ export default function OnboardingPage() {
                     name="phone"
                     id="phone"
                     autoComplete="tel"
+                    placeholder="(555) 123-4567"
                     value={formData.phone}
                     onChange={handleChange}
                     className={formErrors.phone ? 'error' : ''}
@@ -419,157 +399,61 @@ export default function OnboardingPage() {
             </div>
             
             <div className="form-section">
-              <h3>Social Media Profiles</h3>
-              <p>Add your social media profiles to connect with your audience.</p>
-              
-              <div className="form-grid">
-                <div className="form-field">
-                  <label htmlFor="linkedin">LinkedIn</label>
-                  <input
-                    type="text"
-                    name="linkedin"
-                    id="linkedin"
-                    value={formData.linkedin}
-                    onChange={handleChange}
-                  />
-                </div>
-                
-                <div className="form-field">
-                  <label htmlFor="instagram">Instagram</label>
-                  <input
-                    type="text"
-                    name="instagram"
-                    id="instagram"
-                    value={formData.instagram}
-                    onChange={handleChange}
-                  />
-                </div>
-                
-                <div className="form-field">
-                  <label htmlFor="facebook">Facebook</label>
-                  <input
-                    type="text"
-                    name="facebook"
-                    id="facebook"
-                    value={formData.facebook}
-                    onChange={handleChange}
-                  />
-                </div>
-                
-                <div className="form-field">
-                  <label htmlFor="twitter">Twitter</label>
-                  <input
-                    type="text"
-                    name="twitter"
-                    id="twitter"
-                    value={formData.twitter}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-            </div>
-            
-            <div className="form-section">
-              <h3>Brand Preferences</h3>
-              <p>Select your preferred color scheme and style.</p>
+              <h3>About Your Story</h3>
+              <p>These questions help us prepare for your free Self Cast Workshop.</p>
               
               <div className="form-field">
-                <label>Color Preference</label>
-                <div className="color-options">
-                  {['#007AFF', '#1a1a1a', '#10b981', '#8b5cf6', '#ef4444'].map((color) => (
-                    <button
-                      key={color}
-                      type="button"
-                      onClick={() => handleColorSelect(color)}
-                      className={`color-option ${formData.colorPreference === color ? 'selected' : ''}`}
-                      style={{ backgroundColor: color }}
-                      aria-label={`Select color ${color}`}
-                    />
-                  ))}
-                </div>
-              </div>
-              
-              <div className="form-field">
-                <label>Style Package</label>
-                <div className="style-options">
-                  <div className="style-option">
-                    <input
-                      id="standard-professional"
-                      name="stylePackage"
-                      type="radio"
-                      value="standard-professional"
-                      checked={formData.stylePackage === 'standard-professional'}
-                      onChange={() => handleColorSelect(formData.colorPreference, 'standard-professional')}
-                    />
-                    <label htmlFor="standard-professional">Standard Professional</label>
-                  </div>
-                  <div className="style-option">
-                    <input
-                      id="modern-minimal"
-                      name="stylePackage"
-                      type="radio"
-                      value="modern-minimal"
-                      checked={formData.stylePackage === 'modern-minimal'}
-                      onChange={() => handleColorSelect(formData.colorPreference, 'modern-minimal')}
-                    />
-                    <label htmlFor="modern-minimal">Modern Minimal</label>
-                  </div>
-                  <div className="style-option">
-                    <input
-                      id="bold-creative"
-                      name="stylePackage"
-                      type="radio"
-                      value="bold-creative"
-                      checked={formData.stylePackage === 'bold-creative'}
-                      onChange={() => handleColorSelect(formData.colorPreference, 'bold-creative')}
-                    />
-                    <label htmlFor="bold-creative">Bold Creative</label>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="form-section">
-              <h3>Workshop Questions</h3>
-              <p>These questions help us prepare for our initial workshop session.</p>
-              
-              <div className="form-field">
-                <label htmlFor="successDefinition">How do you define success for your personal brand?</label>
+                <label htmlFor="successDefinition">What's the main story or message you'd like to share in your workshop?</label>
                 <textarea
                   id="successDefinition"
                   name="successDefinition"
                   rows={3}
+                  placeholder="E.g., I want to share how I transitioned from corporate finance to starting my own wellness business, or how I overcame a personal challenge that shaped who I am today."
                   value={formData.successDefinition}
                   onChange={handleChange}
                 />
               </div>
               
               <div className="form-field">
-                <label htmlFor="contentGoals">What are your main content goals?</label>
+                <label htmlFor="contentGoals">What do you hope to achieve with your story? (e.g., inspire others, share expertise, build connections)</label>
                 <textarea
                   id="contentGoals"
                   name="contentGoals"
                   rows={3}
+                  placeholder="E.g., I hope to inspire others who are facing similar challenges, establish myself as a thought leader in my field, or connect with like-minded individuals who share my passion."
                   value={formData.contentGoals}
                   onChange={handleChange}
                 />
               </div>
               
               <div className="form-field">
-                <label htmlFor="challenges">What challenges are you facing with your current online presence?</label>
+                <label htmlFor="challenges">What challenges have you faced in telling your story effectively?</label>
                 <textarea
                   id="challenges"
                   name="challenges"
                   rows={3}
+                  placeholder="E.g., I struggle with finding the right words to express my ideas, I'm not sure how to make my story relatable to others, or I get nervous when speaking about my experiences."
                   value={formData.challenges}
+                  onChange={handleChange}
+                />
+              </div>
+              
+              <div className="form-field">
+                <label htmlFor="interests">What topics or themes are you most passionate about discussing?</label>
+                <textarea
+                  id="interests"
+                  name="interests"
+                  rows={3}
+                  placeholder="E.g., Personal development, entrepreneurship, wellness, technology, creative arts, education, sustainability, or any specific industry or cause you're passionate about."
+                  value={formData.interests || ''}
                   onChange={handleChange}
                 />
               </div>
             </div>
             
             <div className="form-section">
-              <h3>Schedule Your Workshop Interview</h3>
-              <p>Select a time for your initial workshop interview.</p>
+              <h3>Schedule Your Free Self Cast Workshop</h3>
+              <p>Select a time that works for your 30-minute storytelling session with Sarah.</p>
               
               <div className="calendly-container" style={{ minHeight: '750px' }}></div>
             </div>
@@ -580,7 +464,7 @@ export default function OnboardingPage() {
                 disabled={isSubmitting}
                 className="submit-button"
               >
-                {isSubmitting ? 'Submitting...' : 'Submit'}
+                {isSubmitting ? 'Scheduling...' : 'Schedule My Free Workshop'}
               </button>
             </div>
           </form>

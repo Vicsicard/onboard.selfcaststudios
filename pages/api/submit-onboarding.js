@@ -111,9 +111,6 @@ export default async function handler(req, res) {
       clientEmail,
       projectName,
       phoneNumber,
-      colorPreference,
-      stylePackage,
-      socialMedia,
       workshopResponses
     } = req.body;
     
@@ -125,7 +122,7 @@ export default async function handler(req, res) {
     }
     
     // Use provided project name or generate one based on client name
-    const finalProjectName = projectName || `${clientName}'s Brand Site`;
+    const finalProjectName = projectName || `${clientName}'s Self Cast Workshop`;
     
     // Generate a project ID (slug) from the project name
     const projectId = generateProjectId(finalProjectName);
@@ -151,18 +148,11 @@ export default async function handler(req, res) {
           ownerName: clientName,
           ownerEmail: clientEmail,
           phoneNumber,
-          colorPreference: colorPreference || '#4a6fa5',
-          stylePackage: stylePackage || 'standard-professional',
-          socialMedia: socialMedia || {
-            linkedin: '',
-            instagram: '',
-            facebook: '',
-            twitter: ''
-          },
           workshopResponses: workshopResponses || {
             successDefinition: '',
             contentGoals: '',
-            challenges: ''
+            challenges: '',
+            interests: ''
           },
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -170,30 +160,15 @@ export default async function handler(req, res) {
             // Initial content items
             { key: 'rendered_title', value: finalProjectName },
             { key: 'footer_email', value: clientEmail },
-            { key: 'about_me', value: 'Welcome to my personal brand site.' },
-            { key: 'primary_color', value: colorPreference || '#4a6fa5' },
-            { key: 'secondary_color', value: '#4b5563' },
-            { key: 'accent_color', value: '#10b981' },
-            { key: 'text_color', value: '#1f2937' },
-            { key: 'heading_color', value: '#222222' },
-            { key: 'title_color', value: colorPreference || '#4a6fa5' },
-            { key: 'background_color', value: '#ffffff' }
+            { key: 'about_me', value: 'Welcome to my Self Cast Workshop.' },
+            { key: 'workshop_type', value: 'Free Self Cast Workshop' }
           ]
         };
         
-        // Add social media links to content if provided
-        if (socialMedia) {
-          if (socialMedia.linkedin) {
-            projectData.content.push({ key: 'linkedin_profile_url', value: socialMedia.linkedin });
-          }
-          if (socialMedia.instagram) {
-            projectData.content.push({ key: 'instagram_profile_url', value: socialMedia.instagram });
-          }
-          if (socialMedia.facebook) {
-            projectData.content.push({ key: 'facebook_profile_url', value: socialMedia.facebook });
-          }
-          if (socialMedia.twitter) {
-            projectData.content.push({ key: 'twitter_profile_url', value: socialMedia.twitter });
+        // Add workshop responses to content
+        if (workshopResponses) {
+          if (workshopResponses.interests) {
+            projectData.content.push({ key: 'interests', value: workshopResponses.interests });
           }
         }
         
