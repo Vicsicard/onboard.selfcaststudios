@@ -97,11 +97,16 @@ function fetchCalendlyEmails(imap) {
         }
 
         // Search for unread emails from Calendly to our booking email
+        // Note: We're authenticating with defense@selfcaststudios.com but looking for emails to bookings@selfcaststudios.com
+        console.log(`Looking for emails from notifications@calendly.com to ${BOOKING_EMAIL}`); 
         const searchCriteria = [
           'UNSEEN', 
           ['FROM', 'notifications@calendly.com'],
           ['TO', BOOKING_EMAIL]
         ];
+        
+        // If we're having trouble finding emails, we can try a broader search
+        // const searchCriteria = ['UNSEEN', ['FROM', 'notifications@calendly.com']];
 
         imap.search(searchCriteria, (err, results) => {
           if (err) {
@@ -343,17 +348,15 @@ async function processBookingEmails() {
   let dbConnection = null;
   
   try {
-    console.log('Starting booking email processing...');
+    console.log('Processing booking emails...');
     
     // Connect to database
     dbConnection = await connectToDatabase();
     const { client, db } = dbConnection;
     
-    // Connect to email
-    imap = await connectToEmail();
+    // Connect to email and fetch Calendly emails
+    const emails = await checkForBookingEmails();
     
-    // Fetch Calendly emails
-    const emails = await fetchCalendlyEmails(imap);
     
     if (emails.length === 0) {
       console.log('No new booking emails to process');
