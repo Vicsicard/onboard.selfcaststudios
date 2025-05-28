@@ -1,0 +1,61 @@
+[2025-05-28T01:45:31.409Z] Starting Calendly integration scheduler
+[2025-05-28T01:45:31.414Z] Starting Email Parser...
+[2025-05-28T01:45:31.789Z] Email Parser output: Starting booking email processing...
+
+[2025-05-28T01:45:34.808Z] Email Parser error: Error processing booking emails: Error: Authentication failed.
+    at Connection._resTagged (C:\Users\digit\CascadeProjects\SelfCast Onboard\node_modules\imap\lib\Connection.js:1502:11)
+    at Parser.<anonymous> (C:\Users\digit\CascadeProjects\SelfCast Onboard\node_modules\imap\lib\Connection.js:194:10)
+    at Parser.emit (node:events:518:28)
+    at Parser._resTagged (C:\Users\digit\CascadeProjects\SelfCast Onboard\node_modules\imap\lib\Parser.js:175:10)
+    at Parser._parse (C:\Users\digit\CascadeProjects\SelfCast Onboard\node_modules\imap\lib\Parser.js:139:16)
+    at Parser._tryread (C:\Users\digit\CascadeProjects\SelfCast Onboard\node_modules\imap\lib\Parser.js:82:15)
+    at Parser._cbReadable (C:\Users\digit\CascadeProjects\SelfCast Onboard\node_modules\imap\lib\Parser.js:53:12)
+    at TLSSocket.emit (node:events:518:28)
+    at emitReadable_ (node:internal/streams/readable:832:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:81:21) {
+  type: 'no',
+  textCode: 'AUTHENTICATIONFAILED',
+  source: 'authentication'
+}
+
+[2025-05-28T01:45:34.811Z] Email Parser output: Disconnected from MongoDB
+
+[2025-05-28T01:45:34.812Z] Email Parser output: Script execution completed
+
+[2025-05-28T01:45:34.822Z] Email Parser process exited with code 0
+[2025-05-28T01:47:31.424Z] Starting Retry Script...
+[2025-05-28T01:47:32.602Z] Retry Script output: Connected to MongoDB
+
+[2025-05-28T01:47:32.727Z] Retry Script output: Found 6 unlinked bookings to process
+
+[2025-05-28T01:47:32.728Z] Retry Script output: Processing booking for Not available with free plan
+
+[2025-05-28T01:47:32.787Z] Retry Script output: No matching project found for Not available with free plan, skipping
+
+[2025-05-28T01:47:32.867Z] Retry Script output: Processing booking for Not available with free plan
+
+[2025-05-28T01:47:32.931Z] Retry Script output: No matching project found for Not available with free plan, skipping
+
+[2025-05-28T01:47:32.993Z] Retry Script output: Processing booking for Not available with free plan
+
+[2025-05-28T01:47:33.053Z] Retry Script output: No matching project found for Not available with free plan, skipping
+
+[2025-05-28T01:47:33.114Z] Retry Script output: Processing booking for Not available with free plan
+
+[2025-05-28T01:47:33.174Z] Retry Script output: No matching project found for Not available with free plan, skipping
+
+[2025-05-28T01:47:33.237Z] Retry Script output: Processing booking for Not available with free plan
+
+[2025-05-28T01:47:33.297Z] Retry Script output: No matching project found for Not available with free plan, skipping
+
+[2025-05-28T01:47:33.359Z] Retry Script output: Processing booking for Not available with free plan
+
+[2025-05-28T01:47:33.423Z] Retry Script output: No matching project found for Not available with free plan, skipping
+
+[2025-05-28T01:47:33.485Z] Retry Script output: Linked 0 bookings to projects
+
+[2025-05-28T01:47:33.490Z] Retry Script output: Disconnected from MongoDB
+
+[2025-05-28T01:47:33.492Z] Retry Script output: Retry process completed
+
+[2025-05-28T01:47:33.500Z] Retry Script process exited with code 0

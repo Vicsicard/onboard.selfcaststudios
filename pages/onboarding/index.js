@@ -203,13 +203,97 @@ export default function OnboardingPage() {
     }
   };
 
+  // If the form is being submitted, show processing screen
+  if (isSubmitting) {
+    return (
+      <div className="min-h-screen bg-gradient-surface">
+        <Head>
+          <title>Processing Your Workshop | Self Cast Studios</title>
+          <meta name="description" content="Processing your Self Cast Workshop submission" />
+        </Head>
+        
+        <div className="onboarding-container">
+          <div className="onboarding-header">
+            <h2>Processing Your Submission</h2>
+            <p>Please wait while we set up your workshop...</p>
+          </div>
+
+          <div className="onboarding-form">
+            <div className="processing-container" style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '3rem',
+              textAlign: 'center',
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              borderRadius: '1rem',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              backdropFilter: 'blur(10px)',
+              margin: '2rem 0'
+            }}>
+              {/* Loading spinner animation */}
+              <div className="spinner" style={{
+                width: '80px',
+                height: '80px',
+                margin: '0 auto 2rem auto',
+                border: '4px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '50%',
+                borderTop: '4px solid var(--accent-color)',
+                animation: 'spin 1s linear infinite'
+              }}></div>
+              
+              <style jsx>{`
+                @keyframes spin {
+                  0% { transform: rotate(0deg); }
+                  100% { transform: rotate(360deg); }
+                }
+                
+                @keyframes pulse {
+                  0% { opacity: 0.6; }
+                  50% { opacity: 1; }
+                  100% { opacity: 0.6; }
+                }
+                
+                .processing-step {
+                  animation: pulse 1.5s infinite;
+                }
+              `}</style>
+              
+              <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--text-color)' }}>Setting Up Your Workshop</h3>
+              
+              <div style={{ marginBottom: '2rem', textAlign: 'left' }}>
+                <div className="processing-step" style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center' }}>
+                  <span style={{ display: 'inline-block', width: '24px', height: '24px', marginRight: '12px', backgroundColor: 'var(--accent-color)', borderRadius: '50%' }}></span>
+                  <span>Creating your workshop profile...</span>
+                </div>
+                <div className="processing-step" style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', animationDelay: '0.5s' }}>
+                  <span style={{ display: 'inline-block', width: '24px', height: '24px', marginRight: '12px', backgroundColor: 'var(--accent-color)', borderRadius: '50%' }}></span>
+                  <span>Preparing your scheduling information...</span>
+                </div>
+                <div className="processing-step" style={{ display: 'flex', alignItems: 'center', animationDelay: '1s' }}>
+                  <span style={{ display: 'inline-block', width: '24px', height: '24px', marginRight: '12px', backgroundColor: 'var(--accent-color)', borderRadius: '50%' }}></span>
+                  <span>Finalizing your workshop setup...</span>
+                </div>
+              </div>
+              
+              <p style={{ fontSize: '0.9rem', opacity: '0.8' }}>
+                This may take a few moments. Please don't close this window.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   // If form was successfully submitted, show success page
   if (submitSuccess) {
     return (
       <div className="min-h-screen bg-gradient-surface">
         <Head>
-          <title>Schedule Your Free Workshop | Self Cast Studios</title>
-          <meta name="description" content="Schedule your free Self Cast Workshop and discover your authentic voice" />
+          <title>Workshop Scheduled! | Self Cast Studios</title>
+          <meta name="description" content="Your Self Cast Workshop has been scheduled" />
         </Head>
         
         <div className="onboarding-container">

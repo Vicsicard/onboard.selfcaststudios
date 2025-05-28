@@ -1,6 +1,9 @@
 import { MongoClient } from 'mongodb';
 import bcrypt from 'bcryptjs';
 import { sendWelcomeEmail } from '../../utils/email';
+import { exec } from 'child_process';
+import path from 'path';
+import { promisify } from 'util';
 
 // Email functionality is now imported from utils/email.js
 
@@ -31,6 +34,35 @@ const generateProjectId = (projectName) => {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '') + 
     '-' + Math.floor(Math.random() * 100);
+};
+
+// Function to run the Calendly polling script
+const runCalendlyPolling = async () => {
+  try {
+    console.log('[Calendly] Starting Calendly polling after form submission');
+    
+    // Convert exec to promise-based
+    const execPromise = promisify(exec);
+    
+    // Get the absolute path to the polling script
+    const scriptPath = path.resolve(process.cwd(), 'scripts', 'poll-calendly-events.js');
+    
+    // Execute the polling script
+    const { stdout, stderr } = await execPromise(`node ${scriptPath}`);
+    
+    if (stderr) {
+      console.error('[Calendly] Error running polling script:', stderr);
+    } else {
+      console.log('[Calendly] Polling script output:', stdout);
+    }
+    
+    console.log('[Calendly] Completed Calendly polling');
+    return true;
+  } catch (error) {
+    console.error('[Calendly] Failed to run polling script:', error);
+    // Don't throw the error, just log it - we don't want to fail the form submission
+    return false;
+  }
 };
 
 // Send confirmation email with enhanced error handling and retry logic
@@ -141,6 +173,14 @@ export default async function handler(req, res) {
         // Start transaction
         session.startTransaction();
         
+        // Check if there are any existing unlinked Calendly bookings for this email
+        const existingBookings = await db.collection('scheduledEvents').find({
+          inviteeEmail: clientEmail,
+          projectLinked: { $ne: true } // Only get unlinked bookings
+        }).toArray();
+        
+        console.log(`Found ${existingBookings.length} unlinked Calendly bookings for email: ${clientEmail}`);
+        
         // Create the project in MongoDB
         const projectData = {
           projectId,
@@ -156,6 +196,9 @@ export default async function handler(req, res) {
           },
           createdAt: new Date(),
           updatedAt: new Date(),
+          // Add scheduled event information if available
+          hasScheduledEvent: existingBookings.length > 0,
+          scheduledEvents: existingBookings.map(booking => booking._id.toString()),
           content: [
             // Initial content items
             { key: 'rendered_title', value: finalProjectName },
@@ -206,15 +249,28 @@ export default async function handler(req, res) {
         session.endSession();
       }
       
-      // Send confirmation email
-      await sendConfirmationEmail(clientName, clientEmail, { name: finalProjectName, projectId });
-      
-      // Return success with IDs
+      // Return success immediately to improve user experience
       res.status(200).json({
         message: 'Onboarding data saved successfully',
         projectId,
         projectObjectId: projectObjectId.toString(),
         userObjectId: userObjectId.toString()
+      });
+      
+      // IMPORTANT: After sending the response, perform background tasks
+      // These won't block the user from seeing the success message
+      
+      // Send confirmation email in the background
+      sendConfirmationEmail(clientName, clientEmail, { name: finalProjectName, projectId })
+        .catch(error => {
+          console.error('Error sending confirmation email:', error);
+          // Log error but don't fail the submission
+        });
+      
+      // Run Calendly polling in the background
+      runCalendlyPolling().catch(error => {
+        console.error('Error running Calendly polling:', error);
+        // Non-blocking, we don't want to delay the response
       });
       
     } finally {

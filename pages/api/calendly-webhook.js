@@ -1,5 +1,37 @@
 import { MongoClient } from 'mongodb';
 import { getEventDetails, getEventInvitees } from '../../utils/calendly';
+import crypto from 'crypto';
+
+// Webhook signing key from Calendly
+const WEBHOOK_SIGNING_KEY = process.env.CALENDLY_WEBHOOK_SIGNING_KEY;
+
+// Verify the Calendly webhook signature
+function verifySignature(signature, timestamp, rawBody) {
+  // Skip verification if no signing key is provided
+  if (!WEBHOOK_SIGNING_KEY) {
+    console.warn('No webhook signing key provided. Skipping signature verification.');
+    return true;
+  }
+
+  try {
+    // Create the signed payload by concatenating the timestamp, the character '.', and the request body
+    const signedPayload = `${timestamp}.${rawBody}`;
+
+    // Compute the expected signature using HMAC with SHA-256
+    const hmac = crypto.createHmac('sha256', WEBHOOK_SIGNING_KEY);
+    hmac.update(signedPayload);
+    const expectedSignature = hmac.digest('hex');
+
+    // Compare the expected signature with the provided signature
+    return crypto.timingSafeEqual(
+      Buffer.from(expectedSignature),
+      Buffer.from(signature)
+    );
+  } catch (error) {
+    console.error('Error verifying signature:', error);
+    return false;
+  }
+}
 
 // Connect to MongoDB
 const connectToDatabase = async () => {
@@ -28,8 +60,49 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Get the Calendly signature header
+    const signatureHeader = req.headers['calendly-webhook-signature'];
+    
     // Log the incoming webhook for debugging
     console.log('Received Calendly webhook:', JSON.stringify(req.body, null, 2));
+    console.log('Signature header:', signatureHeader);
+    
+    // Verify the signature if provided
+    if (signatureHeader && WEBHOOK_SIGNING_KEY) {
+      // Parse the signature header
+      const signatureParts = signatureHeader.split(',');
+      const timestampPart = signatureParts.find(part => part.startsWith('t='));
+      const signaturePart = signatureParts.find(part => part.startsWith('v1='));
+      
+      if (!timestampPart || !signaturePart) {
+        console.error('Invalid signature header format');
+        return res.status(401).json({ message: 'Invalid signature header format' });
+      }
+      
+      const timestamp = timestampPart.substring(2);
+      const signature = signaturePart.substring(3);
+      
+      // Get the raw body for signature verification
+      const rawBody = JSON.stringify(req.body);
+      
+      // Verify the signature
+      const isValid = verifySignature(signature, timestamp, rawBody);
+      
+      if (!isValid) {
+        console.error('Invalid webhook signature');
+        return res.status(401).json({ message: 'Invalid webhook signature' });
+      }
+      
+      // Check for replay attacks (optional)
+      const timestampDate = new Date(parseInt(timestamp) * 1000);
+      const now = new Date();
+      const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+      
+      if (timestampDate < fiveMinutesAgo) {
+        console.error('Webhook timestamp is too old');
+        return res.status(401).json({ message: 'Webhook timestamp is too old' });
+      }
+    }
     
     const event = req.body;
     
