@@ -29,13 +29,13 @@ services:
         sync: false
       - key: MONGODB_DB
         value: new-self-website-5-15-25
-      - key: EMAIL_HOST
+      - key: BOOKING_EMAIL_HOST
         value: mail.selfcaststudios.com
-      - key: EMAIL_PORT
+      - key: BOOKING_EMAIL_PORT
         value: 993
-      - key: EMAIL_USER
+      - key: BOOKING_EMAIL_USER
         value: bookings@selfcaststudios.com
-      - key: EMAIL_PASSWORD
+      - key: BOOKING_EMAIL_PASSWORD
         sync: false
-      - key: BOOKING_EMAIL
+      - key: BOOKING_EMAIL_ADDRESS
         value: bookings@selfcaststudios.com

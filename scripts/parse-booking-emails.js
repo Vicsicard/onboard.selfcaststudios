@@ -1,20 +1,27 @@
 // Script to parse Calendly booking emails and link them to onboarding submissions
-require('dotenv').config();
+require('dotenv').config({ path: '.env.email' });
 const { MongoClient } = require('mongodb');
 const Imap = require('imap');
 const { simpleParser } = require('mailparser');
+const { inspect } = require('util');
 const fs = require('fs');
 
-// Email configuration - these should be stored in environment variables
-const EMAIL_USER = process.env.EMAIL_USER || 'your-email@selfcaststudios.com';
-const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD || 'your-email-password';
-const EMAIL_HOST = process.env.EMAIL_HOST || 'mail.selfcaststudios.com';
-const EMAIL_PORT = parseInt(process.env.EMAIL_PORT || '993');
-const BOOKING_EMAIL = 'bookings@selfcaststudios.com';
+// Email configuration - use the new environment variable names with fallbacks
+const EMAIL_CONFIG = {
+  user: process.env.BOOKING_EMAIL_USER || process.env.EMAIL_USER || 'bookings@selfcaststudios.com',
+  password: process.env.BOOKING_EMAIL_PASSWORD || process.env.EMAIL_PASSWORD || 'your-email-password',
+  host: process.env.BOOKING_EMAIL_HOST || process.env.EMAIL_HOST || 'mail.selfcaststudios.com',
+  port: parseInt(process.env.BOOKING_EMAIL_PORT || process.env.EMAIL_PORT || '993', 10),
+  tls: true,
+  tlsOptions: { rejectUnauthorized: false }
+};
+
+// The email address to check for booking notifications
+const BOOKING_EMAIL = process.env.BOOKING_EMAIL_ADDRESS || process.env.BOOKING_EMAIL || 'bookings@selfcaststudios.com';
 
 // MongoDB configuration
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://selfcaststudios:Oy0OxG1sQVkdQkYD@cluster0.gqnzwvt.mongodb.net/?retryWrites=true&w=majority';
-const MONGODB_DB = process.env.MONGODB_DB || 'selfcast-onboard';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://vicsicard:Z6T46srM9kEGZfLJ@cluster0.tfi0dul.mongodb.net/new-self-website-5-15-25?retryWrites=true&w=majority&appName=Cluster0';
+const MONGODB_DB = process.env.MONGODB_DB || 'new-self-website-5-15-25';
 
 // Function to connect to MongoDB
 async function connectToDatabase() {
@@ -31,29 +38,49 @@ async function connectToDatabase() {
   }
 }
 
-// Function to connect to email
-function connectToEmail() {
+// Function to connect to email server and check for booking emails
+async function checkForBookingEmails() {
   return new Promise((resolve, reject) => {
     try {
+      console.log('Connecting to email server...');
+      console.log(`Using email: ${EMAIL_CONFIG.user}`);
+      
+      // Connect to email server
       const imap = new Imap({
-        user: EMAIL_USER,
-        password: EMAIL_PASSWORD,
-        host: EMAIL_HOST,
-        port: EMAIL_PORT,
-        tls: true,
-        tlsOptions: { rejectUnauthorized: false } // Only use in development
+        user: EMAIL_CONFIG.user,
+        password: EMAIL_CONFIG.password,
+        host: EMAIL_CONFIG.host,
+        port: EMAIL_CONFIG.port,
+        tls: EMAIL_CONFIG.tls,
+        tlsOptions: EMAIL_CONFIG.tlsOptions
       });
 
       imap.once('ready', () => {
-        resolve(imap);
+        console.log('Connected to email server');
+        fetchCalendlyEmails(imap)
+          .then(emails => {
+            imap.end();
+            resolve(emails);
+          })
+          .catch(error => {
+            console.error('Error fetching emails:', error);
+            imap.end();
+            reject(error);
+          });
       });
 
       imap.once('error', (err) => {
+        console.error('IMAP connection error:', err);
         reject(err);
+      });
+
+      imap.once('end', () => {
+        console.log('IMAP connection ended');
       });
 
       imap.connect();
     } catch (error) {
+      console.error('Error in checkForBookingEmails:', error);
       reject(error);
     }
   });
