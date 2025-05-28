@@ -18,3 +18,24 @@ services:
       - key: NEXT_PUBLIC_SITE_URL
         value: https://onboard.selfcaststudios.com
     autoDeploy: true
+
+  - type: worker
+    name: calendly-email-parser
+    env: node
+    buildCommand: npm install
+    startCommand: node scripts/schedule-email-parser.js
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DB
+        value: new-self-website-5-15-25
+      - key: EMAIL_HOST
+        value: mail.selfcaststudios.com
+      - key: EMAIL_PORT
+        value: 993
+      - key: EMAIL_USER
+        value: bookings@selfcaststudios.com
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: BOOKING_EMAIL
+        value: bookings@selfcaststudios.com
