@@ -49,13 +49,37 @@ async function retryUnlinkedBookings() {
       
       console.log(`Processing booking for ${booking.inviteeEmail}`);
       
-      // Look for a matching project
-      const project = await db.collection('projects').findOne({
-        ownerEmail: booking.inviteeEmail
+      // Extract the actual email from Calendly format which might be like "email@example.com [email@example.com]"
+      let cleanEmail = booking.inviteeEmail;
+      
+      // Check if the email contains brackets and extract the actual email
+      const emailMatch = booking.inviteeEmail.match(/([^\s\[\]]+@[^\s\[\]]+\.[^\s\[\]]+)/g);
+      if (emailMatch && emailMatch.length > 0) {
+        cleanEmail = emailMatch[0];
+        console.log(`Extracted clean email: ${cleanEmail} from ${booking.inviteeEmail}`);
+      }
+      
+      // Look for a matching project with the clean email
+      let project = await db.collection('projects').findOne({
+        ownerEmail: cleanEmail
       });
       
+      // If no match with clean email, try a regex search as fallback
+      if (!project && cleanEmail !== booking.inviteeEmail) {
+        console.log(`No exact match found, trying regex search for ${cleanEmail}`);
+        const regexProject = await db.collection('projects').findOne({
+          ownerEmail: { $regex: cleanEmail, $options: 'i' }
+        });
+        
+        if (regexProject) {
+          console.log(`Found project via regex: ${regexProject.projectId}`);
+          // Use the regex project match
+          project = regexProject;
+        }
+      }
+      
       if (!project) {
-        console.log(`No matching project found for ${booking.inviteeEmail}, skipping`);
+        console.log(`No matching project found for ${cleanEmail} (from ${booking.inviteeEmail}), skipping`);
         
         // Update processing attempts
         await db.collection('scheduledEvents').updateOne(
