@@ -67,7 +67,7 @@ const runCalendlyPolling = async () => {
 };
 
 // Send confirmation email with enhanced error handling and retry logic
-const sendConfirmationEmail = async (clientName, clientEmail, projectDetails) => {
+const sendConfirmationEmail = async (clientName, clientEmail, projectDetails, calendlyBooking = null) => {
   console.log(`[Email] Attempting to send confirmation email to ${clientEmail} for project ${projectDetails.projectId}`);
   
   // Maximum number of retry attempts
@@ -85,8 +85,13 @@ const sendConfirmationEmail = async (clientName, clientEmail, projectDetails) =>
       console.log(`[Email] Client name: ${clientName}`);
       console.log(`[Email] Project details:`, JSON.stringify(projectDetails));
       
-      // Attempt to send the email
-      const info = await sendWelcomeEmail(clientName, clientEmail, projectDetails);
+      // Log Calendly booking info if available
+      if (calendlyBooking) {
+        console.log(`[Email] Including Calendly booking scheduled for ${new Date(calendlyBooking.startTime).toLocaleString()}`);
+      }
+      
+      // Attempt to send the email with Calendly booking info if available
+      const info = await sendWelcomeEmail(clientName, clientEmail, projectDetails, calendlyBooking);
       
       // Log success details
       console.log(`[Email] Confirmation email sent successfully to ${clientEmail}`);
@@ -263,12 +268,29 @@ export default async function handler(req, res) {
       // This ensures the email is sent before the serverless function terminates
       console.log('Sending confirmation email before responding to client...');
       try {
-        // Send confirmation email with the project code
+        // Check if there's a Calendly booking for this client
+        let calendlyBooking = null;
+        try {
+          const bookings = await db.collection('scheduledEvents').find({
+            inviteeEmail: clientEmail,
+            status: { $ne: 'canceled' } // Only get active bookings
+          }).sort({ startTime: 1 }).limit(1).toArray();
+          
+          if (bookings && bookings.length > 0) {
+            calendlyBooking = bookings[0];
+            console.log(`Found Calendly booking for ${clientEmail} scheduled for ${new Date(calendlyBooking.startTime).toLocaleString()}`);
+          }
+        } catch (bookingError) {
+          console.error('Error fetching Calendly booking:', bookingError);
+          // Continue without booking info if there's an error
+        }
+        
+        // Send confirmation email with the project code and Calendly booking if available
         await sendConfirmationEmail(clientName, clientEmail, { 
           name: finalProjectName, 
           projectId,
           projectCode // Include the project code in the email data
-        });
+        }, calendlyBooking);
         console.log('✅ Confirmation email sent successfully');
       } catch (emailError) {
         console.error('Error sending confirmation email:', emailError);

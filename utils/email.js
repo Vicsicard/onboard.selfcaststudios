@@ -78,13 +78,21 @@ export async function createTransporter() {
   }
   
   // Use production email settings
-  // Use Bluehost-specific configuration
-  const host = process.env.EMAIL_HOST || 'smtp.oxcs.bluehost.com';
-  const port = parseInt(process.env.EMAIL_PORT || '587', 10);
-  const secure = process.env.EMAIL_SECURE === 'true';
-  const user = process.env.EMAIL_USER || 'defense@selfcaststudios.com';
-  const pass = process.env.EMAIL_PASSWORD;
-  const authMethod = process.env.EMAIL_AUTH_METHOD || 'LOGIN';
+  // Use Bluehost-specific configuration with hardcoded values to ensure consistency
+  const host = 'smtp.oxcs.bluehost.com';
+  const port = 587;
+  const secure = false;
+  const user = 'defense@selfcaststudios.com';
+  const pass = process.env.EMAIL_PASSWORD || 'Jerrygarcia1993!';
+  const authMethod = 'LOGIN';
+  
+  // Log what we're actually using
+  console.log('SMTP Configuration being used:');
+  console.log('Host:', host);
+  console.log('Port:', port);
+  console.log('Secure:', secure);
+  console.log('User:', user);
+  console.log('Auth Method:', authMethod);
   
   await logToFile(`Using production email configuration:`);
   await logToFile(`Host: ${host}`);
@@ -130,7 +138,7 @@ export async function createTransporter() {
 }
 
 // Send welcome/confirmation email
-export async function sendWelcomeEmail(clientName, clientEmail, projectDetails) {
+export async function sendWelcomeEmail(clientName, clientEmail, projectDetails, calendlyBooking = null) {
   try {
     await logToFile(`Attempting to send welcome email to ${clientEmail} with project code ${projectDetails.projectCode}`);
     
@@ -154,7 +162,7 @@ export async function sendWelcomeEmail(clientName, clientEmail, projectDetails) 
     
     // Prepare email options
     const mailOptions = {
-      from: '"Self Cast Studios" <defense@selfcaststudios.com>',
+      from: '"Self Cast Studios" <defense@selfcaststudios.com>', // Must match the authenticated user
       to: clientEmail,
       cc: 'newclient@selfcaststudios.com',
       subject: `Self Cast Studios - Your Workshop Code: ${projectDetails.projectCode}`,
@@ -186,7 +194,7 @@ export async function sendWelcomeEmail(clientName, clientEmail, projectDetails) 
           
           <p>Thank you for joining Self Cast Studios. Your project "${projectDetails.name}" has been created.</p>
           
-          <p>You can access your project dashboard at any time using your email address: ${clientEmail}</p>
+
           <p>We've created an account for you with the following details:</p>
           <ul>
             <li><strong>Login Email:</strong> ${clientEmail}</li>
@@ -196,6 +204,14 @@ export async function sendWelcomeEmail(clientName, clientEmail, projectDetails) 
           
           <div style="background-color: #fffacd; border: 2px dashed #ffa500; padding: 15px; margin: 20px 0; border-radius: 6px;">
             <h3 style="margin-top: 0; color: #ff6b6b;">📝 Workshop Interview Instructions:</h3>
+            ${calendlyBooking ? `
+            <div style="background-color: #fff; border: 1px solid #ff6b6b; padding: 15px; margin: 10px 0; border-radius: 6px;">
+              <h4 style="margin-top: 0; color: #ff6b6b;">📅 Your Scheduled Workshop</h4>
+              <p><strong>Date:</strong> ${new Date(calendlyBooking.startTime).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+              <p><strong>Time:</strong> ${new Date(calendlyBooking.startTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })} - ${new Date(calendlyBooking.endTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })}</p>
+              <p><strong>Time Zone:</strong> ${calendlyBooking.timezone}</p>
+            </div>
+            ` : ''}
             <p><strong>When your scheduled workshop time arrives:</strong></p>
             <ol style="font-weight: bold;">
               <li>Call Sarah at <span style="color: #ff6b6b;">850.952.9047</span></li>
@@ -212,12 +228,9 @@ export async function sendWelcomeEmail(clientName, clientEmail, projectDetails) 
             <p style="font-weight: bold;">Without this code, Sarah may have difficulty identifying your project during the interview.</p>
           </div>
           
-          <a href="https://clients.selfcaststudios.com/" style="display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-top: 15px;">Access Your Dashboard</a>
+
           
-          <div style="background-color: #f9f9f9; border-left: 4px solid #4CAF50; padding: 15px; margin: 20px 0;">
-            <p style="margin: 0;"><strong>Important Timeline Information:</strong></p>
-            <p style="margin: 10px 0 0;">Please note that your website and new content will not be available until after the workshop and creative process is complete. This typically takes about 14 days after your workshop is completed.</p>
-          </div>
+
           
           <p style="margin-top: 20px;">If you have any questions, please don't hesitate to contact us.</p>
           <p>Best regards,<br>The Self Cast Studios Team</p>
