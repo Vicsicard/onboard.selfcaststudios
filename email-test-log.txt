@@ -1,0 +1,87 @@
+[2025-06-04T16:54:34.926Z] ======= PRODUCTION EMAIL TEST =======
+[2025-06-04T16:54:34.934Z] Environment: production
+[2025-06-04T16:54:34.934Z] Server: smtp.oxcs.bluehost.com:587
+[2025-06-04T16:54:34.935Z] Username: defense@selfcaststudios.com
+[2025-06-04T16:54:34.936Z] Secure: false
+[2025-06-04T16:54:34.937Z] Auth Method: LOGIN
+[2025-06-04T16:54:34.944Z] Verifying connection to mail server...
+[2025-06-04T16:54:36.749Z] ✅ Mail server connection verified!
+[2025-06-04T16:54:36.750Z] Sending test email...
+[2025-06-04T16:54:38.397Z] ✅ Test email sent!
+[2025-06-04T16:54:38.398Z] Message ID: <180df0c4-c97c-7d5a-aafa-d1f209b75227@selfcaststudios.com>
+[2025-06-04T16:54:38.399Z] Response: 250 2.6.0 Message accepted with ID 053c431a-1845e53c5602e9d3
+[2025-06-04T16:54:38.400Z] Testing welcome email function...
+[2025-06-04T16:54:38.404Z] ❌ Error in SMTP test: Cannot use import statement outside a module
+[2025-06-04T16:54:38.406Z] C:\Users\digit\CascadeProjects\SelfCast Onboard\utils\email.js:1
+import nodemailer from 'nodemailer';
+^^^^^^
+
+SyntaxError: Cannot use import statement outside a module
+    at internalCompileFunction (node:internal/vm:128:18)
+    at wrapSafe (node:internal/modules/cjs/loader:1280:20)
+    at Module._compile (node:internal/modules/cjs/loader:1332:27)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1427:10)
+    at Module.load (node:internal/modules/cjs/loader:1206:32)
+    at Module._load (node:internal/modules/cjs/loader:1022:12)
+    at Module.require (node:internal/modules/cjs/loader:1231:19)
+    at require (node:internal/modules/helpers:179:18)
+    at testSMTPConnection (C:\Users\digit\CascadeProjects\SelfCast Onboard\test-email-production.js:105:34)
+[2025-06-04T16:54:38.408Z] ❌ SMTP test failed: Cannot use import statement outside a module
+[2025-06-04T16:54:48.047Z] ======= PRODUCTION EMAIL TEST =======
+[2025-06-04T16:54:48.054Z] Environment: production
+[2025-06-04T16:54:48.055Z] Server: smtp.oxcs.bluehost.com:587
+[2025-06-04T16:54:48.056Z] Username: defense@selfcaststudios.com
+[2025-06-04T16:54:48.056Z] Secure: false
+[2025-06-04T16:54:48.057Z] Auth Method: LOGIN
+[2025-06-04T16:54:48.064Z] Verifying connection to mail server...
+[2025-06-04T16:54:48.899Z] ✅ Mail server connection verified!
+[2025-06-04T16:54:48.900Z] Sending test email...
+[2025-06-04T16:54:50.766Z] ✅ Test email sent!
+[2025-06-04T16:54:50.768Z] Message ID: <92590f5f-4e14-2abe-726e-235b6fdc8597@selfcaststudios.com>
+[2025-06-04T16:54:50.769Z] Response: 250 2.6.0 Message accepted with ID 7c519839-1845e53f3ae8513c
+[2025-06-04T16:54:50.771Z] Testing welcome email function...
+[2025-06-04T16:54:50.774Z] ❌ Error in SMTP test: Cannot use import statement outside a module
+[2025-06-04T16:54:50.775Z] C:\Users\digit\CascadeProjects\SelfCast Onboard\utils\email.js:1
+import nodemailer from 'nodemailer';
+^^^^^^
+
+SyntaxError: Cannot use import statement outside a module
+    at internalCompileFunction (node:internal/vm:128:18)
+    at wrapSafe (node:internal/modules/cjs/loader:1280:20)
+    at Module._compile (node:internal/modules/cjs/loader:1332:27)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1427:10)
+    at Module.load (node:internal/modules/cjs/loader:1206:32)
+    at Module._load (node:internal/modules/cjs/loader:1022:12)
+    at Module.require (node:internal/modules/cjs/loader:1231:19)
+    at require (node:internal/modules/helpers:179:18)
+    at testSMTPConnection (C:\Users\digit\CascadeProjects\SelfCast Onboard\test-email-production.js:105:34)
+[2025-06-04T16:54:50.777Z] ❌ SMTP test failed: Cannot use import statement outside a module
+[2025-06-04T16:55:01.779Z] ======= PRODUCTION EMAIL TEST =======
+[2025-06-04T16:55:01.786Z] Environment: production
+[2025-06-04T16:55:01.787Z] Server: smtp.oxcs.bluehost.com:587
+[2025-06-04T16:55:01.787Z] Username: defense@selfcaststudios.com
+[2025-06-04T16:55:01.788Z] Secure: false
+[2025-06-04T16:55:01.789Z] Auth Method: LOGIN
+[2025-06-04T16:55:01.796Z] Verifying connection to mail server...
+[2025-06-04T16:55:02.627Z] ✅ Mail server connection verified!
+[2025-06-04T16:55:02.628Z] Sending test email...
+[2025-06-04T16:55:04.161Z] ✅ Test email sent!
+[2025-06-04T16:55:04.166Z] Message ID: <fc0ce03c-971a-4efe-1743-440320637939@selfcaststudios.com>
+[2025-06-04T16:55:04.167Z] Response: 250 2.6.0 Message accepted with ID d9a60cc6-1845e5425e330838
+[2025-06-04T16:55:04.168Z] Testing welcome email function...
+[2025-06-04T16:55:04.171Z] ❌ Error in SMTP test: Cannot use import statement outside a module
+[2025-06-04T16:55:04.172Z] C:\Users\digit\CascadeProjects\SelfCast Onboard\utils\email.js:1
+import nodemailer from 'nodemailer';
+^^^^^^
+
+SyntaxError: Cannot use import statement outside a module
+    at internalCompileFunction (node:internal/vm:128:18)
+    at wrapSafe (node:internal/modules/cjs/loader:1280:20)
+    at Module._compile (node:internal/modules/cjs/loader:1332:27)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1427:10)
+    at Module.load (node:internal/modules/cjs/loader:1206:32)
+    at Module._load (node:internal/modules/cjs/loader:1022:12)
+    at Module.require (node:internal/modules/cjs/loader:1231:19)
+    at require (node:internal/modules/helpers:179:18)
+    at testSMTPConnection (C:\Users\digit\CascadeProjects\SelfCast Onboard\test-email-production.js:105:34)
+[2025-06-04T16:55:04.174Z] ❌ SMTP test failed: Cannot use import statement outside a module

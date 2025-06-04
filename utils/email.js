@@ -157,7 +157,13 @@ export async function sendWelcomeEmail(clientName, clientEmail, projectDetails) 
       from: '"Self Cast Studios" <defense@selfcaststudios.com>',
       to: clientEmail,
       cc: 'newclient@selfcaststudios.com',
-      subject: `Your Workshop Code: ${projectDetails.projectCode} - Call Sarah at 850.952.9047 for your workshop!`,
+      subject: `Self Cast Studios - Your Workshop Code: ${projectDetails.projectCode}`,
+      priority: 'high',
+      headers: {
+        'X-Priority': '1',
+        'X-MSMail-Priority': 'High',
+        'Importance': 'High'
+      },
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2>Welcome, ${clientName}!</h2>

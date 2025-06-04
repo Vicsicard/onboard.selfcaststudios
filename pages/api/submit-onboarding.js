@@ -259,7 +259,23 @@ export default async function handler(req, res) {
         session.endSession();
       }
       
-      // Return success immediately to improve user experience
+      // IMPORTANT: Send confirmation email BEFORE responding to the client
+      // This ensures the email is sent before the serverless function terminates
+      console.log('Sending confirmation email before responding to client...');
+      try {
+        // Send confirmation email with the project code
+        await sendConfirmationEmail(clientName, clientEmail, { 
+          name: finalProjectName, 
+          projectId,
+          projectCode // Include the project code in the email data
+        });
+        console.log('✅ Confirmation email sent successfully');
+      } catch (emailError) {
+        console.error('Error sending confirmation email:', emailError);
+        // Log error but don't fail the submission
+      }
+      
+      // Return success after sending email
       res.status(200).json({
         message: 'Onboarding data saved successfully',
         projectId,
@@ -268,25 +284,15 @@ export default async function handler(req, res) {
         userObjectId: userObjectId.toString()
       });
       
-      // IMPORTANT: After sending the response, perform background tasks
-      // These won't block the user from seeing the success message
-      
-      // Send confirmation email in the background with the project code
-      sendConfirmationEmail(clientName, clientEmail, { 
-        name: finalProjectName, 
-        projectId,
-        projectCode // Include the project code in the email data
-      })
-        .catch(error => {
-          console.error('Error sending confirmation email:', error);
-          // Log error but don't fail the submission
-        });
-      
-      // Run Calendly polling in the background
-      runCalendlyPolling().catch(error => {
-        console.error('Error running Calendly polling:', error);
-        // Non-blocking, we don't want to delay the response
-      });
+      // Run Calendly polling before responding to the client
+      try {
+        console.log('Running Calendly polling before responding to client...');
+        await runCalendlyPolling();
+        console.log('✅ Calendly polling completed successfully');
+      } catch (pollingError) {
+        console.error('Error running Calendly polling:', pollingError);
+        // Log error but don't fail the submission
+      }
       
     } finally {
       // Close the connection
