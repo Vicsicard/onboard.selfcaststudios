@@ -132,20 +132,23 @@ const sendConfirmationEmail = async (clientName, clientEmail, projectDetails) =>
 };
 
 export default async function handler(req, res) {
-  // Only allow POST method
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' });
-  }
-
   try {
-    // Get form data from request body
-    const {
-      clientName,
+    if (req.method !== 'POST') {
+      return res.status(405).json({ message: 'Method not allowed' });
+    }
+
+    console.log('Received onboarding form submission');
+
+    // Extract form data
+    const { 
+      projectName, 
+      clientName, 
       clientEmail,
-      projectName,
       phoneNumber,
       workshopResponses
     } = req.body;
+    
+    console.log('Form data extracted:', { projectName, clientName, clientEmail, phoneNumber });
     
     // Validate required fields
     if (!clientName || !clientEmail || !phoneNumber) {
@@ -169,6 +172,7 @@ export default async function handler(req, res) {
       
       let projectObjectId;
       let userObjectId;
+      let projectCode; // Declare projectCode variable at this scope level
       
       try {
         // Start transaction
@@ -183,7 +187,7 @@ export default async function handler(req, res) {
         console.log(`Found ${existingBookings.length} unlinked Calendly bookings for email: ${clientEmail}`);
         
         // Generate a unique 4-digit project code
-        const projectCode = await generateProjectCode(db);
+        projectCode = await generateProjectCode(db);
         console.log(`Generated project code: ${projectCode} for project: ${projectId}`);
         
         // Create the project in MongoDB
