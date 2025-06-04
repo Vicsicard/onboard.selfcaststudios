@@ -12,37 +12,49 @@
  * @returns {Promise<string>} A unique 4-digit code
  */
 async function generateProjectCode(db) {
+  // Safety check - if db is not provided or invalid, generate a simple code
+  if (!db || !db.collection) {
+    console.warn('Database connection not provided to generateProjectCode. Using fallback code generation.');
+    return Math.floor(1000 + Math.random() * 9000).toString();
+  }
+
   // Maximum attempts to avoid infinite loops
   const MAX_ATTEMPTS = 100;
   let attempts = 0;
   
-  while (attempts < MAX_ATTEMPTS) {
-    // Generate random 4-digit code (1000-9999)
-    const code = Math.floor(1000 + Math.random() * 9000).toString();
-    
-    try {
-      // Check if code already exists in database
-      const existingProject = await db.collection('projects').findOne({ projectCode: code });
+  try {
+    while (attempts < MAX_ATTEMPTS) {
+      // Generate random 4-digit code (1000-9999)
+      const code = Math.floor(1000 + Math.random() * 9000).toString();
       
-      // If code is unique, return it
-      if (!existingProject) {
+      try {
+        // Check if code already exists in database
+        const existingProject = await db.collection('projects').findOne({ projectCode: code });
+        
+        // If code is unique, return it
+        if (!existingProject) {
+          return code;
+        }
+      } catch (error) {
+        console.error('Error checking project code uniqueness:', error);
+        // In case of database error, return a code with a warning log
+        console.warn('Returning potentially non-unique code due to database error');
         return code;
       }
-    } catch (error) {
-      console.error('Error checking project code uniqueness:', error);
-      // In case of database error, return a code with a warning log
-      console.warn('Returning potentially non-unique code due to database error');
-      return code;
+      
+      attempts++;
     }
     
-    attempts++;
+    // If we've exceeded max attempts, generate a timestamp-based code as fallback
+    // This should be extremely rare
+    const timestamp = Date.now().toString().slice(-4);
+    console.warn(`Failed to generate unique code after ${MAX_ATTEMPTS} attempts. Using timestamp-based code: ${timestamp}`);
+    return timestamp;
+  } catch (error) {
+    console.error('Unexpected error in generateProjectCode:', error);
+    // Final fallback - just return a random code
+    return Math.floor(1000 + Math.random() * 9000).toString();
   }
-  
-  // If we've exceeded max attempts, generate a timestamp-based code as fallback
-  // This should be extremely rare
-  const timestamp = Date.now().toString().slice(-4);
-  console.warn(`Failed to generate unique code after ${MAX_ATTEMPTS} attempts. Using timestamp-based code: ${timestamp}`);
-  return timestamp;
 }
 
 /**

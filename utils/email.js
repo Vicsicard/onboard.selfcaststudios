@@ -93,7 +93,7 @@ export async function sendWelcomeEmail(clientName, clientEmail, projectDetails) 
       from: '"Self Cast Studios" <defense@selfcaststudios.com>',
       to: clientEmail,
       cc: 'newclient@selfcaststudios.com',
-      subject: `Your Workshop Code: ${projectDetails.projectCode} - Welcome to Self Cast Studios!`,
+      subject: `Your Workshop Code: ${projectDetails.projectCode} - Call Sarah at 850.952.9047 for your workshop!`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2>Welcome, ${clientName}!</h2>
@@ -107,6 +107,11 @@ export async function sendWelcomeEmail(clientName, clientEmail, projectDetails) 
             </div>
             <p style="margin: 15px 0 5px; font-size: 16px;"><strong>SAVE THIS CODE!</strong></p>
             <p style="margin: 5px 0; font-size: 14px;">You will need this code during your workshop interview with Sarah.</p>
+            <div style="background-color: white; color: #333; padding: 10px; border-radius: 6px; margin-top: 15px; font-size: 18px;">
+              <p style="margin: 0;"><strong>When your scheduled workshop begins:</strong></p>
+              <p style="margin: 5px 0; font-size: 20px; color: #ff6b6b;">📞 Call Sarah at <strong>850.952.9047</strong></p>
+              <p style="margin: 5px 0;">Have your 4-digit code ready!</p>
+            </div>
           </div>
           
           <p>Thank you for joining Self Cast Studios. Your project "${projectDetails.name}" has been created.</p>
@@ -120,13 +125,19 @@ export async function sendWelcomeEmail(clientName, clientEmail, projectDetails) 
           </ul>
           
           <div style="background-color: #fffacd; border: 2px dashed #ffa500; padding: 15px; margin: 20px 0; border-radius: 6px;">
-            <h3 style="margin-top: 0; color: #ff6b6b;">📝 Why Your Workshop Code Is Important:</h3>
-            <p>During your upcoming workshop interview with Sarah (our AI assistant), you will be asked for this 4-digit code. Having this code ready will ensure your interview responses are correctly linked to your project.</p>
+            <h3 style="margin-top: 0; color: #ff6b6b;">📝 Workshop Interview Instructions:</h3>
+            <p><strong>When your scheduled workshop time arrives:</strong></p>
+            <ol style="font-weight: bold;">
+              <li>Call Sarah at <span style="color: #ff6b6b;">850.952.9047</span></li>
+              <li>When prompted, provide your 4-digit code: <span style="color: #ff6b6b;">${projectDetails.projectCode}</span></li>
+              <li>Complete your workshop interview</li>
+            </ol>
+            <p>Having your code ready will ensure your interview responses are correctly linked to your project.</p>
             <p><strong>We recommend:</strong></p>
             <ul>
-              <li>Save this code to your phone contacts</li>
-              <li>Write it down somewhere accessible</li>
-              <li>Add it to your calendar appointment</li>
+              <li>Save Sarah's number (850.952.9047) and your code to your phone contacts</li>
+              <li>Write down your code somewhere accessible</li>
+              <li>Add both the number and code to your calendar appointment</li>
             </ul>
             <p style="font-weight: bold;">Without this code, Sarah may have difficulty identifying your project during the interview.</p>
           </div>
@@ -142,8 +153,10 @@ export async function sendWelcomeEmail(clientName, clientEmail, projectDetails) 
           <p>Best regards,<br>The Self Cast Studios Team</p>
           
           <!-- Final reminder of the code -->
-          <div style="margin-top: 30px; padding: 10px; background-color: #f0f0f0; border-top: 1px solid #ddd; text-align: center;">
-            <p style="margin: 0; font-size: 14px;">Remember your workshop code: <strong style="color: #ff6b6b; font-size: 18px;">${projectDetails.projectCode}</strong></p>
+          <div style="margin-top: 30px; padding: 15px; background-color: #f0f0f0; border-top: 1px solid #ddd; text-align: center;">
+            <p style="margin: 0; font-size: 16px;">For your workshop interview:</p>
+            <p style="margin: 5px 0; font-size: 18px;">📞 Call <strong>850.952.9047</strong></p>
+            <p style="margin: 5px 0; font-size: 16px;">Your workshop code: <strong style="color: #ff6b6b; font-size: 20px;">${projectDetails.projectCode}</strong></p>
           </div>
         </div>
       `

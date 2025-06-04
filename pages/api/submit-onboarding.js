@@ -1,6 +1,7 @@
 import { MongoClient } from 'mongodb';
 import bcrypt from 'bcryptjs';
 import { sendWelcomeEmail } from '../../utils/email';
+import { generateProjectCode } from '../../utils/projectCode';
 import { exec } from 'child_process';
 import path from 'path';
 import { promisify } from 'util';
