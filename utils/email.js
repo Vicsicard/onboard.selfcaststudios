@@ -93,10 +93,22 @@ export async function sendWelcomeEmail(clientName, clientEmail, projectDetails) 
       from: '"Self Cast Studios" <defense@selfcaststudios.com>',
       to: clientEmail,
       cc: 'newclient@selfcaststudios.com',
-      subject: "Welcome to Self Cast Studios!",
+      subject: `Your Workshop Code: ${projectDetails.projectCode} - Welcome to Self Cast Studios!`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2>Welcome, ${clientName}!</h2>
+          
+          <!-- Project Code Box - Prominently displayed at the top -->
+          <div style="background-color: #ff6b6b; color: white; padding: 20px; margin: 20px 0; border-radius: 8px; text-align: center;">
+            <h1 style="margin: 0; font-size: 28px;">⚠️ IMPORTANT ⚠️</h1>
+            <h2 style="margin: 10px 0; font-size: 24px;">YOUR WORKSHOP CODE</h2>
+            <div style="background-color: white; color: #333; padding: 15px; border-radius: 6px; font-size: 36px; font-weight: bold; letter-spacing: 5px;">
+              ${projectDetails.projectCode}
+            </div>
+            <p style="margin: 15px 0 5px; font-size: 16px;"><strong>SAVE THIS CODE!</strong></p>
+            <p style="margin: 5px 0; font-size: 14px;">You will need this code during your workshop interview with Sarah.</p>
+          </div>
+          
           <p>Thank you for joining Self Cast Studios. Your project "${projectDetails.name}" has been created.</p>
           
           <p>You can access your project dashboard at any time using your email address: ${clientEmail}</p>
@@ -104,7 +116,20 @@ export async function sendWelcomeEmail(clientName, clientEmail, projectDetails) 
           <ul>
             <li><strong>Login Email:</strong> ${clientEmail}</li>
             <li><strong>Project ID:</strong> ${projectDetails.projectId}</li>
+            <li><strong>Workshop Code:</strong> ${projectDetails.projectCode} <span style="color: red; font-weight: bold;">(SAVE THIS CODE!)</span></li>
           </ul>
+          
+          <div style="background-color: #fffacd; border: 2px dashed #ffa500; padding: 15px; margin: 20px 0; border-radius: 6px;">
+            <h3 style="margin-top: 0; color: #ff6b6b;">📝 Why Your Workshop Code Is Important:</h3>
+            <p>During your upcoming workshop interview with Sarah (our AI assistant), you will be asked for this 4-digit code. Having this code ready will ensure your interview responses are correctly linked to your project.</p>
+            <p><strong>We recommend:</strong></p>
+            <ul>
+              <li>Save this code to your phone contacts</li>
+              <li>Write it down somewhere accessible</li>
+              <li>Add it to your calendar appointment</li>
+            </ul>
+            <p style="font-weight: bold;">Without this code, Sarah may have difficulty identifying your project during the interview.</p>
+          </div>
           
           <a href="https://clients.selfcaststudios.com/" style="display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-top: 15px;">Access Your Dashboard</a>
           
@@ -115,6 +140,11 @@ export async function sendWelcomeEmail(clientName, clientEmail, projectDetails) 
           
           <p style="margin-top: 20px;">If you have any questions, please don't hesitate to contact us.</p>
           <p>Best regards,<br>The Self Cast Studios Team</p>
+          
+          <!-- Final reminder of the code -->
+          <div style="margin-top: 30px; padding: 10px; background-color: #f0f0f0; border-top: 1px solid #ddd; text-align: center;">
+            <p style="margin: 0; font-size: 14px;">Remember your workshop code: <strong style="color: #ff6b6b; font-size: 18px;">${projectDetails.projectCode}</strong></p>
+          </div>
         </div>
       `
     };

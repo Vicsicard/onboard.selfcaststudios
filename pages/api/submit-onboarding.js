@@ -4,6 +4,7 @@ import { sendWelcomeEmail } from '../../utils/email';
 import { exec } from 'child_process';
 import path from 'path';
 import { promisify } from 'util';
+import { generateProjectCode } from '../../utils/projectCode';
 
 // Email functionality is now imported from utils/email.js
 
@@ -181,9 +182,14 @@ export default async function handler(req, res) {
         
         console.log(`Found ${existingBookings.length} unlinked Calendly bookings for email: ${clientEmail}`);
         
+        // Generate a unique 4-digit project code
+        const projectCode = await generateProjectCode(db);
+        console.log(`Generated project code: ${projectCode} for project: ${projectId}`);
+        
         // Create the project in MongoDB
         const projectData = {
           projectId,
+          projectCode, // Add the 4-digit project code
           name: finalProjectName,
           ownerName: clientName,
           ownerEmail: clientEmail,
@@ -253,6 +259,7 @@ export default async function handler(req, res) {
       res.status(200).json({
         message: 'Onboarding data saved successfully',
         projectId,
+        projectCode, // Include the project code in the response
         projectObjectId: projectObjectId.toString(),
         userObjectId: userObjectId.toString()
       });
@@ -260,8 +267,12 @@ export default async function handler(req, res) {
       // IMPORTANT: After sending the response, perform background tasks
       // These won't block the user from seeing the success message
       
-      // Send confirmation email in the background
-      sendConfirmationEmail(clientName, clientEmail, { name: finalProjectName, projectId })
+      // Send confirmation email in the background with the project code
+      sendConfirmationEmail(clientName, clientEmail, { 
+        name: finalProjectName, 
+        projectId,
+        projectCode // Include the project code in the email data
+      })
         .catch(error => {
           console.error('Error sending confirmation email:', error);
           // Log error but don't fail the submission
