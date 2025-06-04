@@ -5,7 +5,6 @@ import { generateProjectCode } from '../../utils/projectCode';
 import { exec } from 'child_process';
 import path from 'path';
 import { promisify } from 'util';
-import { generateProjectCode } from '../../utils/projectCode';
 
 // Email functionality is now imported from utils/email.js
 
