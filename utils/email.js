@@ -1,4 +1,26 @@
 import nodemailer from 'nodemailer';
+import fs from 'fs';
+
+// Helper function to log email activities to a file for debugging
+const logToFile = async (message, isError = false) => {
+  try {
+    const timestamp = new Date().toISOString();
+    const logMessage = `[${timestamp}] ${message}\n`;
+    const logFile = './email-debug.log';
+    
+    // Log to console
+    if (isError) {
+      console.error(logMessage);
+    } else {
+      console.log(logMessage);
+    }
+    
+    // Append to log file
+    fs.appendFileSync(logFile, logMessage);
+  } catch (err) {
+    console.error(`Failed to write to log file: ${err.message}`);
+  }
+};
 
 // Create reusable transporter using Bluehost SMTP or fallback to test account
 export async function createTransporter() {
@@ -6,25 +28,26 @@ export async function createTransporter() {
   // Only use the USE_TEST_EMAIL flag, ignore NODE_ENV
   const useTestEmail = process.env.USE_TEST_EMAIL === 'true';
   
-  console.log(`USE_TEST_EMAIL flag: ${process.env.USE_TEST_EMAIL}`);
-  console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
-  console.log(`Using test email: ${useTestEmail}`);
+  await logToFile(`Creating email transporter...`);
+  await logToFile(`USE_TEST_EMAIL flag: ${process.env.USE_TEST_EMAIL}`);
+  await logToFile(`NODE_ENV: ${process.env.NODE_ENV}`);
+  await logToFile(`Using test email: ${useTestEmail}`);
   
   // Use test email account for development
   if (useTestEmail) {
-    console.log('Using test email account for development');
+    await logToFile('Using test email account for development');
     try {
       const testAccount = await nodemailer.createTestAccount();
       
-      console.log('Test email credentials:', {
+      await logToFile('Test email credentials: ' + JSON.stringify({
         user: testAccount.user,
-        pass: testAccount.pass,
+        pass: '***REDACTED***',
         smtp: {
           host: testAccount.smtp.host,
           port: testAccount.smtp.port,
           secure: testAccount.smtp.secure
         }
-      });
+      }));
       
       // Create a transporter using the test account
       return nodemailer.createTransport({
@@ -37,11 +60,17 @@ export async function createTransporter() {
         }
       });
     } catch (error) {
-      console.error('Failed to create test email account:', error);
+      await logToFile(`Failed to create test email account: ${error.message}`, true);
+      await logToFile(error.stack, true);
+      
       // Fall back to console logging if test account creation fails
       return {
         sendMail: (mailOptions) => {
-          console.log('Email would have been sent with the following options:', mailOptions);
+          logToFile('Email would have been sent with the following options: ' + JSON.stringify({
+            to: mailOptions.to,
+            from: mailOptions.from,
+            subject: mailOptions.subject
+          }));
           return Promise.resolve({ messageId: 'test-message-id' });
         }
       };
@@ -50,9 +79,19 @@ export async function createTransporter() {
   
   // Use production email settings
   // Use Bluehost-specific configuration
-  const host = process.env.EMAIL_HOST || 'mail.selfcaststudios.com';
-  const port = parseInt(process.env.EMAIL_PORT || '465', 10);
+  const host = process.env.EMAIL_HOST || 'smtp.oxcs.bluehost.com';
+  const port = parseInt(process.env.EMAIL_PORT || '587', 10);
   const secure = process.env.EMAIL_SECURE === 'true';
+  const user = process.env.EMAIL_USER || 'defense@selfcaststudios.com';
+  const pass = process.env.EMAIL_PASSWORD;
+  const authMethod = process.env.EMAIL_AUTH_METHOD || 'LOGIN';
+  
+  await logToFile(`Using production email configuration:`);
+  await logToFile(`Host: ${host}`);
+  await logToFile(`Port: ${port}`);
+  await logToFile(`Secure: ${secure}`);
+  await logToFile(`User: ${user}`);
+  await logToFile(`Auth Method: ${authMethod}`);
   
   // Create Bluehost-specific email configuration
   const config = {
@@ -60,36 +99,60 @@ export async function createTransporter() {
     port: port,
     secure: secure, // true for 465, false for other ports
     auth: {
-      user: process.env.EMAIL_USER || 'defense@selfcaststudios.com',
-      pass: process.env.EMAIL_PASSWORD
+      user: user,
+      pass: pass
     },
-    authMethod: process.env.EMAIL_AUTH_METHOD || 'LOGIN',
+    authMethod: authMethod,
     tls: {
       // Do not fail on invalid certs
       rejectUnauthorized: false
     },
-    debug: true // Enable debug output
+    debug: true, // Enable debug output
+    logger: true // Enable built-in logger
   };
   
-  console.log(`Using email configuration for host: ${host}`);
-  return nodemailer.createTransport(config);
+  try {
+    const transporter = nodemailer.createTransport(config);
+    
+    // Verify connection before returning
+    await logToFile('Verifying SMTP connection...');
+    await transporter.verify();
+    await logToFile('✅ SMTP connection verified successfully');
+    
+    return transporter;
+  } catch (error) {
+    await logToFile(`❌ Failed to create email transporter: ${error.message}`, true);
+    await logToFile(error.stack, true);
+    
+    // Re-throw the error to be handled by the caller
+    throw error;
+  }
 }
 
 // Send welcome/confirmation email
 export async function sendWelcomeEmail(clientName, clientEmail, projectDetails) {
   try {
-    console.log(`Attempting to send welcome email to ${clientEmail}`);
+    await logToFile(`Attempting to send welcome email to ${clientEmail} with project code ${projectDetails.projectCode}`);
+    
+    // Validate inputs
+    if (!clientEmail) {
+      const error = new Error('Client email is required');
+      await logToFile(`❌ ${error.message}`, true);
+      throw error;
+    }
+    
+    if (!projectDetails || !projectDetails.projectCode) {
+      const error = new Error('Project code is required');
+      await logToFile(`❌ ${error.message}`, true);
+      throw error;
+    }
+    
+    // Create transporter
+    await logToFile('Creating email transporter...');
     const transporter = await createTransporter();
+    await logToFile('✅ Email transporter created successfully');
     
-    // Verify connection configuration
-    transporter.verify(function(error, success) {
-      if (error) {
-        console.error('SMTP connection verification failed:', error);
-      } else {
-        console.log('SMTP server is ready to take our messages');
-      }
-    });
-    
+    // Prepare email options
     const mailOptions = {
       from: '"Self Cast Studios" <defense@selfcaststudios.com>',
       to: clientEmail,
@@ -163,12 +226,48 @@ export async function sendWelcomeEmail(clientName, clientEmail, projectDetails) 
       `
     };
     
-    console.log('Sending email with options:', JSON.stringify(mailOptions, null, 2));
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent:', info.messageId);
-    return info;
+    // Send the email with detailed logging
+    await logToFile(`Sending welcome email to ${clientEmail}...`);
+    await logToFile(`Email subject: ${mailOptions.subject}`);
+    
+    try {
+      const info = await transporter.sendMail(mailOptions);
+      await logToFile(`✅ Welcome email sent successfully!`);
+      await logToFile(`Message ID: ${info.messageId}`);
+      await logToFile(`Response: ${info.response || 'No response'}`);
+      return info;
+    } catch (sendError) {
+      await logToFile(`❌ Error sending welcome email: ${sendError.message}`, true);
+      await logToFile(sendError.stack, true);
+      
+      // Try with a different configuration as fallback
+      await logToFile(`Attempting fallback email configuration...`);
+      try {
+        // Create a fallback transporter with different settings
+        const fallbackTransporter = nodemailer.createTransport({
+          host: 'smtp.oxcs.bluehost.com',
+          port: 587,
+          secure: false,
+          auth: {
+            user: 'defense@selfcaststudios.com',
+            pass: process.env.EMAIL_PASSWORD
+          },
+          authMethod: 'LOGIN',
+          tls: { rejectUnauthorized: false }
+        });
+        
+        const fallbackInfo = await fallbackTransporter.sendMail(mailOptions);
+        await logToFile(`✅ Welcome email sent successfully using fallback configuration!`);
+        await logToFile(`Fallback Message ID: ${fallbackInfo.messageId}`);
+        return fallbackInfo;
+      } catch (fallbackError) {
+        await logToFile(`❌ Fallback email attempt also failed: ${fallbackError.message}`, true);
+        throw sendError; // Throw the original error
+      }
+    }
   } catch (error) {
-    console.error('Error sending email:', error);
+    await logToFile(`❌ Error in sendWelcomeEmail: ${error.message}`, true);
+    await logToFile(error.stack, true);
     throw error;
   }
 }
