@@ -63,6 +63,7 @@ export async function createTransporter() {
       user: process.env.EMAIL_USER || 'defense@selfcaststudios.com',
       pass: process.env.EMAIL_PASSWORD
     },
+    authMethod: process.env.EMAIL_AUTH_METHOD || 'LOGIN',
     tls: {
       // Do not fail on invalid certs
       rejectUnauthorized: false
