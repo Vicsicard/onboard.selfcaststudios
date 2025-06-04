@@ -264,6 +264,20 @@ export default async function handler(req, res) {
         session.endSession();
       }
       
+      // Run Calendly polling FIRST to ensure we have the latest booking information
+      try {
+        console.log('Running Calendly polling before sending confirmation email...');
+        await runCalendlyPolling();
+        console.log('✅ Calendly polling completed successfully');
+      } catch (pollingError) {
+        console.error('Error running Calendly polling:', pollingError);
+        // Continue even if polling fails
+      }
+      
+      // Add a delay to allow time for Calendly data to be processed
+      console.log('Waiting for 3 seconds to ensure Calendly data is processed...');
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
       // IMPORTANT: Send confirmation email BEFORE responding to the client
       // This ensures the email is sent before the serverless function terminates
       console.log('Sending confirmation email before responding to client...');
@@ -271,7 +285,10 @@ export default async function handler(req, res) {
         // Check if there's a Calendly booking for this client
         let calendlyBooking = null;
         try {
-          const bookings = await db.collection('scheduledEvents').find({
+          // Refresh the database connection to ensure we have the latest data
+          const freshDb = await connectToDatabase();
+          
+          const bookings = await freshDb.collection('scheduledEvents').find({
             inviteeEmail: clientEmail,
             status: { $ne: 'canceled' } // Only get active bookings
           }).sort({ startTime: 1 }).limit(1).toArray();
@@ -279,6 +296,8 @@ export default async function handler(req, res) {
           if (bookings && bookings.length > 0) {
             calendlyBooking = bookings[0];
             console.log(`Found Calendly booking for ${clientEmail} scheduled for ${new Date(calendlyBooking.startTime).toLocaleString()}`);
+          } else {
+            console.log(`No Calendly bookings found for ${clientEmail} after polling and delay`);
           }
         } catch (bookingError) {
           console.error('Error fetching Calendly booking:', bookingError);
@@ -306,16 +325,7 @@ export default async function handler(req, res) {
         userObjectId: userObjectId.toString()
       });
       
-      // Run Calendly polling before responding to the client
-      try {
-        console.log('Running Calendly polling before responding to client...');
-        await runCalendlyPolling();
-        console.log('✅ Calendly polling completed successfully');
-      } catch (pollingError) {
-        console.error('Error running Calendly polling:', pollingError);
-        // Log error but don't fail the submission
-      }
-      
+      // We've already run the Calendly polling before sending the email
     } finally {
       // Close the connection
       await client.close();
