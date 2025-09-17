@@ -138,7 +138,7 @@ export async function createTransporter() {
 }
 
 // Send welcome/confirmation email
-export async function sendWelcomeEmail(clientName, clientEmail, projectDetails, calendlyBooking = null) {
+export async function sendWelcomeEmail(clientName, clientEmail, projectDetails) {
   try {
     await logToFile(`Attempting to send welcome email to ${clientEmail} with project code ${projectDetails.projectCode}`);
     
@@ -184,17 +184,16 @@ export async function sendWelcomeEmail(clientName, clientEmail, projectDetails, 
               ${projectDetails.projectCode}
             </div>
             <p style="margin: 15px 0 5px; font-size: 16px;"><strong>SAVE THIS CODE!</strong></p>
-            <p style="margin: 5px 0; font-size: 14px;">You will need this code during your workshop interview with Sarah.</p>
+            <p style="margin: 5px 0; font-size: 14px;">You will need this code when you call in for your workshop interview.</p>
             <div style="background-color: white; color: #333; padding: 10px; border-radius: 6px; margin-top: 15px; font-size: 18px;">
-              <p style="margin: 0;"><strong>When your scheduled workshop begins:</strong></p>
-              <p style="margin: 5px 0; font-size: 20px; color: #ff6b6b;">📞 Call Sarah at <strong>850.952.9047</strong></p>
+              <p style="margin: 0;"><strong>Ready for your workshop?</strong></p>
+              <p style="margin: 5px 0; font-size: 20px; color: #ff6b6b;">📞 Call <strong>850.952.9047</strong></p>
               <p style="margin: 5px 0;">Have your 4-digit code ready!</p>
             </div>
           </div>
           
           <p>Thank you for joining Self Cast Studios. Your project "${projectDetails.name}" has been created.</p>
           
-
           <p>We've created an account for you with the following details:</p>
           <ul>
             <li><strong>Login Email:</strong> ${clientEmail}</li>
@@ -204,35 +203,28 @@ export async function sendWelcomeEmail(clientName, clientEmail, projectDetails, 
           
           <div style="background-color: #fffacd; border: 2px dashed #ffa500; padding: 15px; margin: 20px 0; border-radius: 6px;">
             <h3 style="margin-top: 0; color: #ff6b6b;">📝 Workshop Interview Instructions:</h3>
-            ${calendlyBooking ? `
-            <div style="background-color: #fff; border: 1px solid #ff6b6b; padding: 15px; margin: 10px 0; border-radius: 6px;">
-              <h4 style="margin-top: 0; color: #ff6b6b;">📅 Your Scheduled Workshop</h4>
-              <p><strong>Date:</strong> ${new Date(calendlyBooking.startTime).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-              <p><strong>Time:</strong> ${new Date(calendlyBooking.startTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })} - ${new Date(calendlyBooking.endTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })}</p>
-              <p><strong>Time Zone:</strong> ${calendlyBooking.timezone}</p>
-            </div>
-            ` : ''}
-            <p><strong>When your scheduled workshop time arrives:</strong></p>
+            
+            
             <ol style="font-weight: bold;">
-              <li>Call Sarah at <span style="color: #ff6b6b;">850.952.9047</span></li>
-              <li>When prompted, provide your 4-digit code: <span style="color: #ff6b6b;">${projectDetails.projectCode}</span></li>
-              <li>Complete your workshop interview</li>
+              <li>Call <span style="color: #ff6b6b;">850.952.9047</span> when you're ready for your workshop</li>
+              <li>When prompted, enter your 4-digit code: <span style="color: #ff6b6b;">${projectDetails.projectCode}</span> using your phone keypad</li>
+              <li>You'll be connected with a content producer to complete your workshop interview</li>
             </ol>
-            <p>Having your code ready will ensure your interview responses are correctly linked to your project.</p>
+            
             <p><strong>We recommend:</strong></p>
             <ul>
-              <li>Save Sarah's number (850.952.9047) and your code to your phone contacts</li>
-              <li>Write down your code somewhere accessible</li>
-              <li>Add both the number and code to your calendar appointment</li>
+              <li>Save our number (850.952.9047) and your code to your phone contacts</li>
             </ul>
-            <p style="font-weight: bold;">Without this code, Sarah may have difficulty identifying your project during the interview.</p>
+            
+            <div style="background-color: #e6f7ff; border: 1px solid #1890ff; padding: 10px; margin-top: 15px; border-radius: 6px;">
+              <p style="margin: 0;"><strong>💡 Pro Tip:</strong> The workshop is most productive when you come prepared with specific topics or questions you'd like to explore for your personal brand.</p>
+            </div>
           </div>
           
-
+          <p style="margin-top: 20px;">If you have any questions before your workshop, please don't hesitate to contact us at <a href="mailto:support@selfcaststudios.com" style="color: #ff6b6b;">support@selfcaststudios.com</a>.</p>
           
-
+          <p>We look forward to helping you find your authentic voice!</p>
           
-          <p style="margin-top: 20px;">If you have any questions, please don't hesitate to contact us.</p>
           <p>Best regards,<br>The Self Cast Studios Team</p>
           
           <!-- Final reminder of the code -->

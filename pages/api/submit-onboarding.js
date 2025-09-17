@@ -2,9 +2,6 @@ import { MongoClient } from 'mongodb';
 import bcrypt from 'bcryptjs';
 import { sendWelcomeEmail } from '../../utils/email';
 import { generateProjectCode } from '../../utils/projectCode';
-import { exec } from 'child_process';
-import path from 'path';
-import { promisify } from 'util';
 
 // Email functionality is now imported from utils/email.js
 
@@ -37,37 +34,10 @@ const generateProjectId = (projectName) => {
     '-' + Math.floor(Math.random() * 100);
 };
 
-// Function to run the Calendly polling script
-const runCalendlyPolling = async () => {
-  try {
-    console.log('[Calendly] Starting Calendly polling after form submission');
-    
-    // Convert exec to promise-based
-    const execPromise = promisify(exec);
-    
-    // Get the absolute path to the polling script
-    const scriptPath = path.resolve(process.cwd(), 'scripts', 'poll-calendly-events.js');
-    
-    // Execute the polling script
-    const { stdout, stderr } = await execPromise(`node ${scriptPath}`);
-    
-    if (stderr) {
-      console.error('[Calendly] Error running polling script:', stderr);
-    } else {
-      console.log('[Calendly] Polling script output:', stdout);
-    }
-    
-    console.log('[Calendly] Completed Calendly polling');
-    return true;
-  } catch (error) {
-    console.error('[Calendly] Failed to run polling script:', error);
-    // Don't throw the error, just log it - we don't want to fail the form submission
-    return false;
-  }
-};
+// No longer need Calendly polling
 
 // Send confirmation email with enhanced error handling and retry logic
-const sendConfirmationEmail = async (clientName, clientEmail, projectDetails, calendlyBooking = null) => {
+const sendConfirmationEmail = async (clientName, clientEmail, projectDetails) => {
   console.log(`[Email] Attempting to send confirmation email to ${clientEmail} for project ${projectDetails.projectId}`);
   
   // Maximum number of retry attempts
@@ -85,13 +55,8 @@ const sendConfirmationEmail = async (clientName, clientEmail, projectDetails, ca
       console.log(`[Email] Client name: ${clientName}`);
       console.log(`[Email] Project details:`, JSON.stringify(projectDetails));
       
-      // Log Calendly booking info if available
-      if (calendlyBooking) {
-        console.log(`[Email] Including Calendly booking scheduled for ${new Date(calendlyBooking.startTime).toLocaleString()}`);
-      }
-      
-      // Attempt to send the email with Calendly booking info if available
-      const info = await sendWelcomeEmail(clientName, clientEmail, projectDetails, calendlyBooking);
+      // Attempt to send the email
+      const info = await sendWelcomeEmail(clientName, clientEmail, projectDetails);
       
       // Log success details
       console.log(`[Email] Confirmation email sent successfully to ${clientEmail}`);
@@ -149,8 +114,7 @@ export default async function handler(req, res) {
       projectName, 
       clientName, 
       clientEmail,
-      phoneNumber,
-      workshopResponses
+      phoneNumber
     } = req.body;
     
     console.log('Form data extracted:', { projectName, clientName, clientEmail, phoneNumber });
@@ -203,17 +167,8 @@ export default async function handler(req, res) {
           ownerName: clientName,
           ownerEmail: clientEmail,
           phoneNumber,
-          workshopResponses: workshopResponses || {
-            successDefinition: '',
-            contentGoals: '',
-            challenges: '',
-            interests: ''
-          },
           createdAt: new Date(),
           updatedAt: new Date(),
-          // Add scheduled event information if available
-          hasScheduledEvent: existingBookings.length > 0,
-          scheduledEvents: existingBookings.map(booking => booking._id.toString()),
           content: [
             // Initial content items
             { key: 'rendered_title', value: finalProjectName },
@@ -222,13 +177,6 @@ export default async function handler(req, res) {
             { key: 'workshop_type', value: 'Free Self Cast Workshop' }
           ]
         };
-        
-        // Add workshop responses to content
-        if (workshopResponses) {
-          if (workshopResponses.interests) {
-            projectData.content.push({ key: 'interests', value: workshopResponses.interests });
-          }
-        }
         
         const projectResult = await db.collection('projects').insertOne(projectData, { session });
         projectObjectId = projectResult.insertedId;
@@ -264,52 +212,16 @@ export default async function handler(req, res) {
         session.endSession();
       }
       
-      // Run Calendly polling FIRST to ensure we have the latest booking information
-      try {
-        console.log('Running Calendly polling before sending confirmation email...');
-        await runCalendlyPolling();
-        console.log('✅ Calendly polling completed successfully');
-      } catch (pollingError) {
-        console.error('Error running Calendly polling:', pollingError);
-        // Continue even if polling fails
-      }
-      
-      // Add a delay to allow time for Calendly data to be processed
-      console.log('Waiting for 3 seconds to ensure Calendly data is processed...');
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
       // IMPORTANT: Send confirmation email BEFORE responding to the client
       // This ensures the email is sent before the serverless function terminates
       console.log('Sending confirmation email before responding to client...');
       try {
-        // Check if there's a Calendly booking for this client
-        let calendlyBooking = null;
-        try {
-          // Refresh the database connection to ensure we have the latest data
-          const freshDb = await connectToDatabase();
-          
-          const bookings = await freshDb.collection('scheduledEvents').find({
-            inviteeEmail: clientEmail,
-            status: { $ne: 'canceled' } // Only get active bookings
-          }).sort({ startTime: 1 }).limit(1).toArray();
-          
-          if (bookings && bookings.length > 0) {
-            calendlyBooking = bookings[0];
-            console.log(`Found Calendly booking for ${clientEmail} scheduled for ${new Date(calendlyBooking.startTime).toLocaleString()}`);
-          } else {
-            console.log(`No Calendly bookings found for ${clientEmail} after polling and delay`);
-          }
-        } catch (bookingError) {
-          console.error('Error fetching Calendly booking:', bookingError);
-          // Continue without booking info if there's an error
-        }
-        
-        // Send confirmation email with the project code and Calendly booking if available
+        // Send confirmation email with the project code
         await sendConfirmationEmail(clientName, clientEmail, { 
           name: finalProjectName, 
           projectId,
           projectCode // Include the project code in the email data
-        }, calendlyBooking);
+        });
         console.log('✅ Confirmation email sent successfully');
       } catch (emailError) {
         console.error('Error sending confirmation email:', emailError);

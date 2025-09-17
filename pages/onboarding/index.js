@@ -7,87 +7,23 @@ export default function OnboardingPage() {
     fullName: '',
     email: '',
     phone: '',
-    title: '',
-    successDefinition: '',
-    contentGoals: '',
-    challenges: '',
-    interests: ''
+    title: ''
   });
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [externalId, setExternalId] = useState('');
-  const [calendlyLoaded, setCalendlyLoaded] = useState(false);
 
   // Get URL parameters on client side only
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const extId = urlParams.get('external_id');
-    if (extId) {
-      setExternalId(extId);
-    }
-  }, []);
-  
-  // Handle Calendly initialization - separate effect to avoid re-initialization
-  useEffect(() => {
-    // Only run once when component mounts
-    if (calendlyLoaded) return;
-    
-    const initCalendly = () => {
-      if (typeof window !== 'undefined' && window.Calendly) {
-        console.log('Initializing Calendly widget...');
-        const calendlyContainer = document.querySelector('.calendly-container');
-        
-        // Check if Calendly is already initialized in this container
-        if (calendlyContainer && !calendlyContainer.querySelector('iframe')) {
-          window.Calendly.initInlineWidget({
-            url: 'https://calendly.com/vicsicard/30min?hide_gdpr_banner=1',
-            parentElement: calendlyContainer,
-            prefill: {
-              name: formData.fullName,
-              email: formData.email,
-              customAnswers: {
-                a1: formData.phone
-              }
-            },
-            styles: {
-              height: '750px'
-            }
-          });
-          
-          // Add loaded class to hide the loading message
-          setTimeout(() => {
-            if (calendlyContainer) {
-              calendlyContainer.classList.add('loaded');
-              setCalendlyLoaded(true);
-            }
-          }, 1500); // Short delay to ensure widget is fully loaded
-        }
-      } else {
-        console.log('Calendly not loaded yet, retrying in 1 second...');
-        setTimeout(initCalendly, 1000);
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const extId = urlParams.get('external_id');
+      if (extId) {
+        setExternalId(extId);
       }
-    };
-    
-    // Clean up any existing Calendly scripts to avoid duplicates
-    const existingScript = document.getElementById('calendly-script');
-    if (existingScript) {
-      existingScript.remove();
     }
-    
-    // Load Calendly script
-    const script = document.createElement('script');
-    script.id = 'calendly-script';
-    script.src = 'https://assets.calendly.com/assets/external/widget.js';
-    script.async = true;
-    script.onload = initCalendly;
-    document.body.appendChild(script);
-    
-    // Cleanup function
-    return () => {
-      // We don't remove the script on cleanup as it might be needed by other components
-    };
   }, []);
 
   // Handle input changes
@@ -149,13 +85,7 @@ export default function OnboardingPage() {
         clientName: formData.fullName,
         clientEmail: formData.email,
         projectName: formData.title || `${formData.fullName}'s Workshop`,
-        phoneNumber: formData.phone,
-        workshopResponses: {
-          successDefinition: formData.successDefinition || '',
-          contentGoals: formData.contentGoals || '',
-          challenges: formData.challenges || '',
-          interests: formData.interests || ''
-        }
+        phoneNumber: formData.phone
       };
 
       const response = await fetch('/api/submit-onboarding', {
@@ -188,11 +118,7 @@ export default function OnboardingPage() {
         fullName: '',
         email: '',
         phone: '',
-        title: '',
-        successDefinition: '',
-        contentGoals: '',
-        challenges: '',
-        interests: ''
+        title: ''
       });
       
     } catch (error) {
@@ -317,9 +243,9 @@ export default function OnboardingPage() {
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                 <polyline points="22 4 12 14.01 9 11.01"></polyline>
               </svg>
-              <h3 className="success-title">We've received your information</h3>
+              <h3 className="success-title">Your Workshop Account is Ready!</h3>
               <p className="success-message">
-                Our team will be in touch with you shortly to discuss the next steps.
+                Check your email for your unique workshop code and instructions on how to call in for your interview.
               </p>
             </div>
           </div>
@@ -331,8 +257,8 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen bg-gradient-surface">
       <Head>
-        <title>Schedule Your Free Workshop | Self Cast Studios</title>
-        <meta name="description" content="Schedule your free Self Cast Workshop and discover your authentic voice" />
+        <title>Complete Your Workshop Registration | Self Cast Studios</title>
+        <meta name="description" content="Complete your Self Cast Workshop registration and get ready for your interview" />
       </Head>
       
       {/* Brand Header */}
@@ -375,7 +301,7 @@ export default function OnboardingPage() {
       <div className="onboarding-container">
         <div className="onboarding-header">
           <h1>Your Story. Your Voice. Start Here.</h1>
-          <p>Complete this form to schedule your free Self Cast Workshop</p>
+          <p>Complete your registration to receive your workshop code</p>
         </div>
         
         <div className="onboarding-form">
@@ -482,65 +408,6 @@ export default function OnboardingPage() {
               </div>
             </div>
             
-            <div className="form-section">
-              <h3>About Your Story</h3>
-              <p>These questions help us prepare for your free Self Cast Workshop.</p>
-              
-              <div className="form-field">
-                <label htmlFor="successDefinition">What's the main story or message you'd like to share in your workshop?</label>
-                <textarea
-                  id="successDefinition"
-                  name="successDefinition"
-                  rows={3}
-                  placeholder="E.g., I want to share how I transitioned from corporate finance to starting my own wellness business, or how I overcame a personal challenge that shaped who I am today."
-                  value={formData.successDefinition}
-                  onChange={handleChange}
-                />
-              </div>
-              
-              <div className="form-field">
-                <label htmlFor="contentGoals">What do you hope to achieve with your story? (e.g., inspire others, share expertise, build connections)</label>
-                <textarea
-                  id="contentGoals"
-                  name="contentGoals"
-                  rows={3}
-                  placeholder="E.g., I hope to inspire others who are facing similar challenges, establish myself as a thought leader in my field, or connect with like-minded individuals who share my passion."
-                  value={formData.contentGoals}
-                  onChange={handleChange}
-                />
-              </div>
-              
-              <div className="form-field">
-                <label htmlFor="challenges">What challenges have you faced in telling your story effectively?</label>
-                <textarea
-                  id="challenges"
-                  name="challenges"
-                  rows={3}
-                  placeholder="E.g., I struggle with finding the right words to express my ideas, I'm not sure how to make my story relatable to others, or I get nervous when speaking about my experiences."
-                  value={formData.challenges}
-                  onChange={handleChange}
-                />
-              </div>
-              
-              <div className="form-field">
-                <label htmlFor="interests">What topics or themes are you most passionate about discussing?</label>
-                <textarea
-                  id="interests"
-                  name="interests"
-                  rows={3}
-                  placeholder="E.g., Personal development, entrepreneurship, wellness, technology, creative arts, education, sustainability, or any specific industry or cause you're passionate about."
-                  value={formData.interests || ''}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-            
-            <div className="form-section">
-              <h3>Schedule Your Free Self Cast Workshop</h3>
-              <p>Select a time that works for your 30-minute storytelling session with Sarah.</p>
-              
-              <div className="calendly-container" style={{ minHeight: '750px' }}></div>
-            </div>
             
             <div style={{ marginTop: '2rem', textAlign: 'right' }}>
               <button
@@ -548,7 +415,7 @@ export default function OnboardingPage() {
                 disabled={isSubmitting}
                 className="submit-button"
               >
-                {isSubmitting ? 'Scheduling...' : 'Schedule My Free Workshop'}
+                {isSubmitting ? 'Processing...' : 'Complete Registration'}
               </button>
             </div>
           </form>
