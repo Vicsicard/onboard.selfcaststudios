@@ -185,10 +185,16 @@ export async function sendWelcomeEmail(clientName, clientEmail, projectDetails) 
             </div>
             <p style="margin: 15px 0 5px; font-size: 16px;"><strong>SAVE THIS CODE!</strong></p>
             <p style="margin: 5px 0; font-size: 14px;">You will need this code when you call in for your workshop interview.</p>
-            <div style="background-color: white; color: #333; padding: 10px; border-radius: 6px; margin-top: 15px; font-size: 18px;">
+            
+            <div style="background-color: #ff9500; color: white; padding: 15px; border-radius: 6px; margin: 15px 0 10px; font-size: 20px; text-align: center; font-weight: bold;">
+              CALL ANYTIME - NO NEED TO WAIT!
+            </div>
+            
+            <div style="background-color: white; color: #333; padding: 15px; border-radius: 6px; margin-top: 10px; font-size: 18px;">
               <p style="margin: 0;"><strong>Ready for your workshop?</strong></p>
-              <p style="margin: 5px 0; font-size: 20px; color: #ff6b6b;">📞 Call <strong>850.952.9047</strong></p>
+              <p style="margin: 10px 0; font-size: 22px; color: #ff6b6b;">📞 Call <strong>850.952.9047</strong> NOW!</p>
               <p style="margin: 5px 0;">Have your 4-digit code ready!</p>
+              <p style="margin: 10px 0; font-style: italic; font-weight: bold; color: #ff6b6b;">There's no time like the present - call now to get started!</p>
             </div>
           </div>
           

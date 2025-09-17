@@ -61,18 +61,33 @@ export default function EmailPreview() {
           </div>
           <p style={{ margin: '15px 0 5px', fontSize: '16px' }}><strong>SAVE THIS CODE!</strong></p>
           <p style={{ margin: '5px 0', fontSize: '14px' }}>You will need this code when you call in for your workshop interview.</p>
+          
+          <div style={{ 
+            backgroundColor: '#ff9500', 
+            color: 'white', 
+            padding: '15px', 
+            borderRadius: '6px', 
+            margin: '15px 0 10px', 
+            fontSize: '20px', 
+            textAlign: 'center', 
+            fontWeight: 'bold'
+          }}>
+            CALL ANYTIME - NO NEED TO WAIT!
+          </div>
+          
           <div style={{ 
             backgroundColor: 'white', 
             color: '#333', 
             padding: '15px', 
             borderRadius: '8px', 
-            marginTop: '20px', 
+            marginTop: '10px', 
             fontSize: '18px',
             boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)'
           }}>
             <p style={{ margin: 0 }}><strong>Ready for your workshop?</strong></p>
-            <p style={{ margin: '5px 0', fontSize: '20px', color: '#ff6b6b' }}>📞 Call <strong>850.952.9047</strong></p>
+            <p style={{ margin: '10px 0', fontSize: '22px', color: '#ff6b6b' }}>📞 Call <strong>850.952.9047</strong> NOW!</p>
             <p style={{ margin: '5px 0' }}>Have your 4-digit code ready!</p>
+            <p style={{ margin: '10px 0', fontStyle: 'italic', fontWeight: 'bold', color: '#ff6b6b' }}>There's no time like the present - call now to get started!</p>
           </div>
         </div>
         
